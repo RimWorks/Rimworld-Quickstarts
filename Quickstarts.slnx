@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Source/">
+    <Project Path="Source/Quickstarts/Quickstarts.csproj" />
+    <Project Path="Source/Quickstarts.Patches.Harmony/Quickstarts.Patches.Harmony.csproj" />
+    <Project Path="Source/Quickstarts.Patches.Concord/Quickstarts.Patches.Concord.csproj" />
+    <Project Path="Source/Quickstarts.Ref/Quickstarts.Ref.csproj" />
+    <Project Path="Source/Quickstarts.Tests/Quickstarts.Tests.csproj" />
+  </Folder>
+</Solution>

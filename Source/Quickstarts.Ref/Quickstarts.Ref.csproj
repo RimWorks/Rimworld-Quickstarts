@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <PackageId>RimWorks.Quickstarts.Ref</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>RimWorks</Authors>
+    <Description>Compile-time reference assembly for Quickstarts, the boot-into-a-scenario dev tool for RimWorld. Reference this to define quickstarts in your own mod; the Quickstarts mod supplies the real assembly at runtime.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/RimWorks/Rimworld-Quickstarts</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Metadata only. The package ships Quickstarts' reference assembly, not this
+         project's own (empty) output, so mono binds the mod's real dll at runtime. -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <!-- NU5128/NU5131: the package deliberately ships a ref assembly with no lib output. -->
+    <NoWarn>$(NoWarn);NU5128;NU5131</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.4633" />
+  </ItemGroup>
+
+  <!-- Build Quickstarts first so its ref assembly exists, but do not reference it. -->
+  <ItemGroup>
+    <ProjectReference Include="..\Quickstarts\Quickstarts.csproj" ReferenceOutputAssembly="false" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
+
+    <!-- ref/, not lib/: assets under ref are compile-only, so a consumer never
+         copies this stub next to the real Quickstarts.dll the mod loads. -->
+    <None Include="..\Quickstarts\obj\$(Configuration)\ref\Quickstarts.dll" Pack="true" PackagePath="ref/net472/" Visible="false" />
+    <None Include="_._" Pack="true" PackagePath="lib/net472/" Visible="false" Condition="Exists('_._')" />
+  </ItemGroup>
+</Project>

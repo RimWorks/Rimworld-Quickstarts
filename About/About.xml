@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <packageId>rimworks.quickstarts</packageId>
+  <name>Quickstarts</name>
+  <author>RimWorks</author>
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+  <description>Developer tool. Define fully-configured boot-into-game scenarios in C#, launch them from the command line or the dev quicktest menu, and run them as smoke tests with assert-and-exit CI mode. Needs Harmony or Concord.</description>
+  <loadAfter>
+    <li>brrainz.harmony</li>
+    <li>concordlib.concord</li>
+  </loadAfter>
+</ModMetaData>

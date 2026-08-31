@@ -1,0 +1,10 @@
+bin/
+obj/
+.idea/
+.vs/
+Assemblies/
+Harmony/Assemblies/
+Concord/Assemblies/
+node_modules/
+artifacts/
+*.user

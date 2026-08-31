@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <Quickstarts_StartGame>Jumping into quickstart</Quickstarts_StartGame>
+  <Quickstarts_Reload>Reloading quickstart</Quickstarts_Reload>
+
+  <Quickstarts_Picker_Title>Pick a quicktest</Quickstarts_Picker_Title>
+  <Quickstarts_Picker_Vanilla>Vanilla quicktest</Quickstarts_Picker_Vanilla>
+  <Quickstarts_Picker_VanillaBlurb>RimWorld's own Crashlanded quicktest</Quickstarts_Picker_VanillaBlurb>
+
+  <Quickstarts_Field_Name>Quickstart: </Quickstarts_Field_Name>
+  <Quickstarts_Field_MapSize>Map size: </Quickstarts_Field_MapSize>
+  <Quickstarts_Field_Difficulty>Difficulty: </Quickstarts_Field_Difficulty>
+  <Quickstarts_Field_Scenario>Scenario: </Quickstarts_Field_Scenario>
+  <Quickstarts_Field_PauseAfterLoad>Pause after load: </Quickstarts_Field_PauseAfterLoad>
+
+  <Quickstarts_Settings_Default>Default quickstart</Quickstarts_Settings_Default>
+  <Quickstarts_Settings_DefaultDesc>In dev mode, the game boots straight into this quickstart. Leave it unset to start normally.</Quickstarts_Settings_DefaultDesc>
+  <Quickstarts_Settings_None>None</Quickstarts_Settings_None>
+  <Quickstarts_Settings_TestScenario>Test scenario</Quickstarts_Settings_TestScenario>
+  <Quickstarts_Settings_TestScenarioDesc>Scenario used by ScenarioTestQuickstart. Boots straight into any scenario with default pawn generation.</Quickstarts_Settings_TestScenarioDesc>
+  <Quickstarts_Settings_ReplacePicker>Replace the dev quicktest button with the picker</Quickstarts_Settings_ReplacePicker>
+  <Quickstarts_Settings_ReplacePickerDesc>Off sends the main menu's dev quicktest straight to vanilla's Crashlanded map, the way it behaves without this mod.</Quickstarts_Settings_ReplacePickerDesc>
+
+  <Quickstarts_StatusBox_Launching>Quickstarts is launching</Quickstarts_StatusBox_Launching>
+  <Quickstarts_MissingBackend>Quickstarts needs Harmony or Concord active. Neither is loaded, so nothing will launch.</Quickstarts_MissingBackend>
+</LanguageData>
