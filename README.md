@@ -3,7 +3,7 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=RimWorks_Rimworld-Quickstarts&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=RimWorks_Rimworld-Quickstarts)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=RimWorks_Rimworld-Quickstarts&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=RimWorks_Rimworld-Quickstarts)
 
-<img src="About/ModIcon.png" alt="Quickstarts icon" width="96" align="right">
+<img src="https://raw.githubusercontent.com/RimWorks/Rimworld-Quickstarts/main/About/ModIcon.png" alt="Quickstarts icon" width="96" align="right">
 
 A developer tool for RimWorld. Write a boot-into-game scenario in C#, then launch it from the
 dev menu or the command line. The same scenario doubles as a smoke test: run it with a flag and
@@ -11,7 +11,7 @@ the game asserts, writes a JSON report, and exits with a pass or fail code.
 
 Requires Harmony or Concord. If both are active, Concord is used.
 
-![Quickstarts preview card](About/Preview.png)
+![Quickstarts preview card](https://raw.githubusercontent.com/RimWorks/Rimworld-Quickstarts/main/About/Preview.png)
 
 ## Install
 
