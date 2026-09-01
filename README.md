@@ -1,5 +1,8 @@
 # Quickstarts
 
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=RimWorks_Rimworld-Quickstarts&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=RimWorks_Rimworld-Quickstarts)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=RimWorks_Rimworld-Quickstarts&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=RimWorks_Rimworld-Quickstarts)
+
 <img src="About/ModIcon.png" alt="Quickstarts icon" width="96" align="right">
 
 A developer tool for RimWorld. Write a boot-into-game scenario in C#, then launch it from the
