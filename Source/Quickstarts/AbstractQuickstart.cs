@@ -41,9 +41,8 @@ public abstract class AbstractQuickstart {
   public virtual void PostStart() { }
 
   /// <summary>
-  /// Runs after the scenario is configured but before the world is generated. A world
-  /// generator step that reads the world sees null otherwise, so anything that has to be in
-  /// place for generation belongs here.
+  /// Runs after the scenario is configured, before the world is generated. Put anything a
+  /// world generator step has to read here, because it sees null otherwise.
   /// </summary>
   public virtual void PreGenerateWorld() { }
 
@@ -66,9 +65,7 @@ public abstract class AbstractQuickstart {
   /// <summary>Runs after <see cref="PrepareColonists"/>, just before the pause.</summary>
   public virtual void PostLoaded() { }
 
-  /// <summary>
-  /// Assertions to run in CI mode. Return null to skip verification and exit 0.
-  /// </summary>
+  /// <summary>Assertions to run in CI mode. Return null to skip verification and exit 0.</summary>
   /// <returns>The assertions, or null when this quickstart has none.</returns>
   public virtual QuickstartVerification? Verify() => null;
 

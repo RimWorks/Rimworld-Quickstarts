@@ -1,14 +1,8 @@
 <Project>
 
   <!--
-    Shared StyleCop wiring for RimWorks mods. Import this from a repo's
-    Directory.Build.props:
-
-        <Import Project="StyleCop.props" />
-
-    or paste the ItemGroup/PropertyGroup below directly. Severities live in the
-    shared .editorconfig (SA* rules), not here. TreatWarningsAsErrors (set per
-    repo) is what makes the error-severity SA rules fail the build.
+    Shared StyleCop wiring for RimWorks mods. Import this from a repo's Directory.Build.props.
+    SA* severities live in the shared .editorconfig, not here.
   -->
 
   <PropertyGroup>

@@ -3,9 +3,7 @@ using Verse;
 
 namespace RimWorks.Quickstarts;
 
-/// <summary>
-/// The command line and environment switches that drive a quickstart run.
-/// </summary>
+/// <summary>The command line and environment switches that drive a quickstart run.</summary>
 public static class QuickstartArgs {
   /// <summary>Selects the quickstart to launch: <c>-quickstart=SampleQuickstart</c>.</summary>
   public const string SelectArg = "quickstart";

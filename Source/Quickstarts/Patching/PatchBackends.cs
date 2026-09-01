@@ -50,8 +50,7 @@ public static class PatchBackends {
 
     Registered.Sort((a, b) => b.Priority.CompareTo(a.Priority));
 
-    // A backend that throws hands over to the next one rather than leaving the game
-    // unpatched while a working library sits right there.
+    // A backend that throws hands over to the next, rather than leaving the game unpatched.
     for (int i = 0; i < Registered.Count; i++) {
       Registration registration = Registered[i];
       try {

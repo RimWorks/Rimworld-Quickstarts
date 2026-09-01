@@ -7,9 +7,8 @@ using Verse;
 namespace RimWorks.Quickstarts.Patches.Concord;
 
 /// <summary>
-/// Swaps the main menu's dev quicktest entry for the picker. Done by rewriting the option's
-/// action rather than transpiling MainMenuDrawer, so a vanilla layout change to the menu
-/// cannot silently drop the hook.
+/// Swaps the main menu's dev quicktest entry for the picker. Rewrites the option's action
+/// instead of transpiling MainMenuDrawer, so a menu layout change cannot drop the hook.
 /// </summary>
 [Patch(typeof(OptionListingUtility))]
 public static class MainMenuOptionPatch {

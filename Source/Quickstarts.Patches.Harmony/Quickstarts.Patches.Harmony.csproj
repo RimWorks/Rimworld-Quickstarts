@@ -11,8 +11,7 @@
     <PackageReference Include="Lib.Harmony" Version="2.3.*" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
-    <!-- Private=false: Quickstarts.dll ships once, in the root Assemblies folder.
-         A second copy here would load the same types twice. -->
+    <!-- Private=false: Quickstarts.dll ships once, from the root Assemblies folder. -->
     <ProjectReference Include="..\Quickstarts\Quickstarts.csproj" Private="false" />
   </ItemGroup>
 </Project>

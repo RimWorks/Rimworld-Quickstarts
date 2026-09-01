@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- The mod is net472, but the SDK ships no net472 test host for Linux, so
-         `dotnet test` cannot run one there. These tests touch nothing that needs
-         Unity or Verse, which lets them target a modern runtime and run anywhere. -->
+    <!-- No net472 test host ships for Linux. These tests touch nothing needing Unity or
+         Verse, so they can target a modern runtime and run anywhere. -->
     <TargetFramework>net9.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>

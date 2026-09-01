@@ -1,16 +1,7 @@
 #!/usr/bin/env bash
-# Run a quickstart headlessly (xvfb) and exit with its CI code.
-# Used both locally and in CI so there is no environment drift.
-#
-# Usage:
-#   run-quickstart.sh <QuickstartName> [reportPath]
-# Example:
-#   run-quickstart.sh ScenarioTestQuickstart /tmp/qs-report.json
-#
-# Env:
-#   RIMWORLD_DIR     game folder            (default: the Steam library path below)
-#   RIMWORLD_CONFIG  Config folder holding Prefs.xml
-#   QUICKSTART_LOG   where the Player.log goes
+# Run a quickstart headlessly (xvfb) and exit with its CI code. Same script locally and in CI.
+# Usage: run-quickstart.sh <QuickstartName> [reportPath]
+# Env:   RIMWORLD_DIR, RIMWORLD_CONFIG, QUICKSTART_LOG. Defaults are the assignments below.
 
 set -uo pipefail
 
@@ -27,8 +18,7 @@ if ! command -v xvfb-run >/dev/null 2>&1; then
   exit 127
 fi
 
-# A quickstart only runs in dev mode, and a fresh Prefs.xml has it off. Without this
-# the game boots to the main menu and the report is never written.
+# A quickstart only runs in dev mode, and a fresh Prefs.xml has it off.
 PREFS="$CONFIG_DIR/Prefs.xml"
 if [[ -f "$PREFS" ]]; then
   if grep -q '<devMode>False</devMode>' "$PREFS"; then

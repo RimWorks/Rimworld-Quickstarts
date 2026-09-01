@@ -4,9 +4,8 @@ using System.Collections.Generic;
 namespace RimWorks.Quickstarts;
 
 /// <summary>
-/// Matches a quickstart name given on the command line against the loaded quickstart types.
-/// Accepts a plain class name, a namespaced name, or the assembly-qualified name the mod
-/// settings store.
+/// Matches a name from the command line against the loaded quickstart types. Accepts a plain
+/// class name, a namespaced name, or the assembly-qualified name the mod settings store.
 /// </summary>
 public static class QuickstartLookup {
   /// <summary>Finds the one quickstart type a name refers to.</summary>

@@ -19,8 +19,7 @@ public static class QuickstartHooks {
   private static readonly FieldInfo? WidgetRowFinalXField =
       typeof(DebugWindowsOpener).GetField("widgetRowFinalX", BindingFlags.Instance | BindingFlags.NonPublic);
 
-  // One instance, so the already-swapped check below is a reference comparison and the
-  // main menu does not allocate a delegate every frame it draws.
+  // One instance, so the check below is a reference comparison and the menu allocates nothing.
   private static readonly Action OpenPicker = Dialog_QuicktestPicker.Open;
 
   private static bool loggedMissingField;
@@ -50,9 +49,7 @@ public static class QuickstartHooks {
     WidgetRowFinalXField?.SetValue(opener, row.FinalX);
   }
 
-  /// <summary>
-  /// Runs before the main menu draws its options: points the dev quicktest entry at the picker.
-  /// </summary>
+  /// <summary>Runs before the main menu draws its options: points the dev quicktest entry at the picker.</summary>
   /// <param name="options">The menu's option list, edited in place.</param>
   public static void BeforeDrawOptionListing(List<ListableOption> options) {
     if (!Prefs.DevMode || Current.ProgramState != ProgramState.Entry) {

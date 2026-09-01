@@ -2,9 +2,7 @@ using Verse;
 
 namespace RimWorks.Quickstarts;
 
-/// <summary>
-/// Log wrapper that tags every line, so a quickstart run is one grep away in Player.log.
-/// </summary>
+/// <summary>Log wrapper that tags every line, so a quickstart run is one grep away in Player.log.</summary>
 public static class Logger {
   private const string Prefix = "[Quickstarts] ";
 

@@ -5,9 +5,8 @@ using Verse;
 namespace RimWorks.Quickstarts;
 
 /// <summary>
-/// Every quickstart the loaded mods define. A type qualifies if it is a non-abstract
-/// <see cref="AbstractQuickstart"/> with a parameterless constructor, so a mod adds one by
-/// declaring a class and nothing else.
+/// Every quickstart the loaded mods define. A mod adds one by declaring a non-abstract
+/// <see cref="AbstractQuickstart"/> with a parameterless constructor, and nothing else.
 /// </summary>
 public static class QuickstartRegistry {
   private static List<Type>? cachedTypes;

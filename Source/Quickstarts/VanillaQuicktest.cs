@@ -30,10 +30,8 @@ public static class VanillaQuicktest {
   /// the game dropping straight into a map.
   /// </summary>
   /// <remarks>
-  /// Done by flipping QuickStarter's own guard rather than by patching CheckQuickStart:
-  /// UIRoot_Entry.Init runs in the InitializingInterface long event, which Root.Start queues
-  /// before the mod constructor ever queues the event that applies this mod's patches. A patch
-  /// on that method would be composed several events too late to matter.
+  /// Flips QuickStarter's own guard instead of patching CheckQuickStart. UIRoot_Entry.Init runs
+  /// in the InitializingInterface long event, queued before this mod's patches are applied.
   /// </remarks>
   public static void ClaimCommandLineArg() {
     if (!QuickstartsMod.Settings.replaceQuicktestButton || !GenCommandLine.CommandLineArgPassed("quicktest")) {
@@ -69,8 +67,7 @@ public static class VanillaQuicktest {
         () => {
           Root_Play.SetupForQuickTestPlay();
 
-          // SetupForQuickTestPlay builds the game and generates the world in one call, so this
-          // is the first point a subscriber can see a complete game.
+          // SetupForQuickTestPlay builds the game and world, so this is the first complete one.
           try {
             Configuring?.Invoke();
           } catch (Exception ex) {

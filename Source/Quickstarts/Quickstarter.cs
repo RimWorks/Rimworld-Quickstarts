@@ -45,8 +45,7 @@ public class Quickstarter {
         return;
       }
 
-      // Idempotent, and the only way to be sure the hooks are on before the status box
-      // is meant to draw: static constructor order across the two classes is undefined.
+      // Idempotent. Static ctor order is undefined, so hooks may not be on when the box draws.
       PatchBackends.ApplyBest();
 
       finished = false;
@@ -173,9 +172,7 @@ public class Quickstarter {
   private static void Exit(int code) {
     Logger.Message($"Exiting with code {code}.");
 
-    // Application.Quit, not Environment.Exit. This runs inside a game tick, and unloading the
-    // AppDomain from a Unity callback hangs the process at full CPU instead of ending it.
-    // Quit sets a flag Unity acts on once the frame finishes, which is after this returns.
+    // Application.Quit, not Environment.Exit: an AppDomain unload from a Unity callback hangs.
     Application.Quit(code);
   }
 
@@ -186,8 +183,7 @@ public class Quickstarter {
           ApplyConfiguration();
           PageUtility.InitGameStart();
 
-          // Half a second, not zero: pawns finish spawning over the first few ticks, so
-          // reading the colonist list any earlier gets a short list.
+          // Half a second, not zero: pawns finish spawning over the first few ticks.
           DelayedActionScheduler.Schedule(OnLoaded, GenTicks.TicksPerRealSecond / 2);
         },
         "Quickstarts_StartGame",
@@ -224,8 +220,7 @@ public class Quickstarter {
 
     Find.Scenario.PostIdeoChosen();
 
-    // After PostIdeoChosen: the scenario's own setup runs in there and would undo anything
-    // a quickstart set before it.
+    // After PostIdeoChosen: the scenario's own setup runs in there and would undo this.
     quickstart.PostConfigured();
   }
 
@@ -237,16 +232,14 @@ public class Quickstarter {
           .Where(p => p is { Spawned: true, Map: not null, story: not null, needs: not null })
           .ToList();
 
-      // An empty list here means PrepareColonists silently does nothing, which is how a
-      // quickstart ends up looking fine while none of its pawn setup ran.
+      // An empty list means PrepareColonists silently does nothing and the run still looks fine.
       if (pawns.Count == 0) {
         Logger.Warning(
             $"No colonists passed the readiness filter. World has {Find.World.PlayerPawnsForStoryteller.Count()}"
             + $" player pawns; map has {Find.CurrentMap?.mapPawns?.FreeColonistsSpawnedCount ?? -1} spawned colonists.");
       }
 
-      // Counted before the handoff: a quickstart is free to drain the list it is given, and
-      // reading Count afterwards then reports zero for a run that set up every colonist.
+      // Counted before the handoff: a quickstart may drain the list, so Count reads zero after.
       int count = pawns.Count;
       quickstart.PrepareColonists(pawns);
       quickstart.PostLoaded();

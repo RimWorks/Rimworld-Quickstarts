@@ -39,8 +39,7 @@ jobs:
       - name: Install release dependencies
         run: npm ci --ignore-scripts
 
-      # Non-blocking: the push below already skips itself when no key came back, so a
-      # missing trust policy should cost the nuget package, not the whole release.
+      # Non-blocking: a missing trust policy should cost the nuget package, not the release.
       - name: Get a NuGet API key by trusted publishing
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
         id: nuget-login
