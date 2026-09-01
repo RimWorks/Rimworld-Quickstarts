@@ -2,6 +2,7 @@
 
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=RimWorks_Rimworld-Quickstarts&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=RimWorks_Rimworld-Quickstarts)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=RimWorks_Rimworld-Quickstarts&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=RimWorks_Rimworld-Quickstarts)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=RimWorks_Rimworld-Quickstarts&metric=coverage)](https://sonarcloud.io/summary/new_code?id=RimWorks_Rimworld-Quickstarts)
 
 <img src="https://raw.githubusercontent.com/RimWorks/Rimworld-Quickstarts/main/About/ModIcon.png" alt="Quickstarts icon" width="96" align="right">
 
