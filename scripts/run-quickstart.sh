@@ -30,7 +30,7 @@ fi
 # A quickstart only runs in dev mode, and a fresh Prefs.xml has it off. Without this
 # the game boots to the main menu and the report is never written.
 PREFS="$CONFIG_DIR/Prefs.xml"
-if [ -f "$PREFS" ]; then
+if [[ -f "$PREFS" ]]; then
   if grep -q '<devMode>False</devMode>' "$PREFS"; then
     sed -i 's|<devMode>False</devMode>|<devMode>True</devMode>|' "$PREFS"
     echo "enabled dev mode in $PREFS"
@@ -48,7 +48,7 @@ CODE=$?
 
 echo "----------------------------------------"
 echo "quickstart '$NAME' exited with code $CODE"
-if [ -f "$REPORT" ]; then
+if [[ -f "$REPORT" ]]; then
   echo "report: $REPORT"
   cat "$REPORT"
 else

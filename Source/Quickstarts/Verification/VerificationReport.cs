@@ -45,41 +45,50 @@ public static class VerificationReport {
   }
 
   private static string Build(string quickstartName, QuickstartVerification? verification, bool passed) {
-    int total = verification?.Results.Count ?? 0;
-    int failed = 0;
-    if (verification != null) {
-      for (int i = 0; i < verification.Results.Count; i++) {
-        if (!verification.Results[i].Passed) {
-          failed++;
-        }
-      }
-    }
-
     StringBuilder sb = new StringBuilder();
     sb.Append("{\n");
     sb.Append("  \"quickstart\": ").Append(JsonString(quickstartName)).Append(",\n");
     sb.Append("  \"passed\": ").Append(passed ? "true" : "false").Append(",\n");
-    sb.Append("  \"total\": ").Append(total).Append(",\n");
-    sb.Append("  \"failed\": ").Append(failed).Append(",\n");
+    sb.Append("  \"total\": ").Append(verification?.Results.Count ?? 0).Append(",\n");
+    sb.Append("  \"failed\": ").Append(CountFailed(verification)).Append(",\n");
     sb.Append("  \"results\": [");
+    AppendResults(sb, verification);
+    sb.Append("]\n}\n");
+    return sb.ToString();
+  }
 
-    if (verification != null) {
-      for (int i = 0; i < verification.Results.Count; i++) {
-        AssertResult result = verification.Results[i];
-        sb.Append(i == 0 ? "\n" : ",\n");
-        sb.Append("    { \"label\": ").Append(JsonString(result.Label));
-        sb.Append(", \"passed\": ").Append(result.Passed ? "true" : "false");
-        sb.Append(", \"detail\": ").Append(JsonString(result.Detail));
-        sb.Append(" }");
-      }
+  private static int CountFailed(QuickstartVerification? verification) {
+    if (verification == null) {
+      return 0;
+    }
 
-      if (verification.Results.Count > 0) {
-        sb.Append("\n  ");
+    int failed = 0;
+    for (int i = 0; i < verification.Results.Count; i++) {
+      if (!verification.Results[i].Passed) {
+        failed++;
       }
     }
 
-    sb.Append("]\n}\n");
-    return sb.ToString();
+    return failed;
+  }
+
+  private static void AppendResults(StringBuilder sb, QuickstartVerification? verification) {
+    if (verification == null) {
+      return;
+    }
+
+    for (int i = 0; i < verification.Results.Count; i++) {
+      AssertResult result = verification.Results[i];
+      sb.Append(i == 0 ? "\n" : ",\n");
+      sb.Append("    { \"label\": ").Append(JsonString(result.Label));
+      sb.Append(", \"passed\": ").Append(result.Passed ? "true" : "false");
+      sb.Append(", \"detail\": ").Append(JsonString(result.Detail));
+      sb.Append(" }");
+    }
+
+    if (verification.Results.Count > 0) {
+      sb.Append("\n  ");
+    }
   }
 
   private static string JsonString(string? value) {

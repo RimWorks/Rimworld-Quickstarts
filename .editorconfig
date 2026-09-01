@@ -394,3 +394,26 @@ dotnet_diagnostic.SA1401.severity = none # field must be private — def fields 
 dotnet_diagnostic.SA1307.severity = none # field must begin uppercase — TYD key binds by camelCase name
 dotnet_diagnostic.SA1310.severity = none # field must not contain underscore — some def fields use them
 
+# Sonar rules that fight RimWorld's own conventions. Each is scoped to the file that needs it,
+# so the rule keeps firing everywhere else. Verified against the source: "fixing" these breaks
+# the mod. Only the CI scanner injects SonarAnalyzer, so these are no-ops in a local build.
+
+# Window classes mirror vanilla's Dialog_* naming; the patch class is named for Root.OnGUI.
+[{Dialog_QuicktestPicker,RootOnGUIPatch}.cs]
+dotnet_diagnostic.S101.severity = none # pascal case — matching RimWorld's names is the point
+
+# Scribe_Values.Look(ref field) is how RimWorld persists settings.
+[QuickstartsSettings.cs]
+dotnet_diagnostic.S1104.severity = none # field must be a property — properties cannot be passed by ref
+
+# Driver : GameComponent is found and constructed by RimWorld, never by a C# caller.
+[DelayedActionScheduler.cs]
+dotnet_diagnostic.S1144.severity = none # unused private class — the game instantiates it by reflection
+
+# The startup lambda clears both flags so ReloadQuickstart can run the launch again.
+[Quickstarter.cs]
+dotnet_diagnostic.S3010.severity = none # static field set in a ctor — a relaunch reset, not dead init
+
+# Reading Verse internals through reflection is what a Harmony mod does.
+[{QuickstartHooks,VanillaQuicktest}.cs]
+dotnet_diagnostic.S3011.severity = none # accessibility bypass — deliberate, and the only way in

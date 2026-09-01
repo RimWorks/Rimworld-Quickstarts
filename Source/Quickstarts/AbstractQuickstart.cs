@@ -96,6 +96,7 @@ public abstract class AbstractQuickstart {
     builder.AppendLine();
     builder.AppendLine(description.Resolve());
 
-    return (cachedDescription = builder.ToString()).Value;
+    cachedDescription = builder.ToString();
+    return cachedDescription.Value;
   }
 }
