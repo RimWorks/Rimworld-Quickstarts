@@ -44,6 +44,7 @@ jobs:
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         run: dotnet tool update dotnet-sonarscanner --tool-path ${{ runner.temp }}/scanner
 
+      # Coverage skips anything importing Verse, RimWorld or UnityEngine: those need a running game.
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -54,7 +55,7 @@ jobs:
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.exclusions="Styles/**,artifacts/**,**/bin/**,**/obj/**" \
-            /d:sonar.coverage.exclusions="Source/Quickstarts/**,Source/Quickstarts.Patches.*/**,Source/Quickstarts.Ref/**" \
+            /d:sonar.coverage.exclusions="Source/Quickstarts/Builtin/**,Source/Quickstarts/Dev/**,Source/Quickstarts/UI/**,Source/Quickstarts/Patching/PatchBackends.cs,Source/Quickstarts/Patching/QuickstartHooks.cs,Source/Quickstarts/Verification/VerificationReport.cs,Source/Quickstarts/AbstractQuickstart.cs,Source/Quickstarts/DelayedActionScheduler.cs,Source/Quickstarts/Logger.cs,Source/Quickstarts/QuickstartArgs.cs,Source/Quickstarts/QuickstartCharacterSetupRegistry.cs,Source/Quickstarts/QuickstartRegistry.cs,Source/Quickstarts/Quickstarter.cs,Source/Quickstarts/QuickstartsMod.cs,Source/Quickstarts/QuickstartsSettings.cs,Source/Quickstarts/VanillaQuicktest.cs,Source/Quickstarts.Patches.*/**" \
             /d:sonar.cs.opencover.reportsPaths="artifacts/coverage/**/coverage.opencover.xml"
           dotnet build Quickstarts.slnx -c Release
           dotnet test Quickstarts.slnx -c Release --no-build \
