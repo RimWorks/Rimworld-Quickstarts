@@ -43,6 +43,7 @@ public static class DelayedActionScheduler {
   }
 
   /// <summary>Drives <see cref="Tick"/>. RimWorld finds and instantiates this itself.</summary>
+#pragma warning disable S1144 // reported at compilation end, so .editorconfig cannot scope it
   private sealed class Driver : GameComponent {
     public Driver() { }
 
@@ -52,4 +53,5 @@ public static class DelayedActionScheduler {
       Tick();
     }
   }
+#pragma warning restore S1144
 }

@@ -406,10 +406,6 @@ dotnet_diagnostic.S101.severity = none # pascal case — matching RimWorld's nam
 [QuickstartsSettings.cs]
 dotnet_diagnostic.S1104.severity = none # field must be a property — properties cannot be passed by ref
 
-# Driver : GameComponent is found and constructed by RimWorld, never by a C# caller.
-[DelayedActionScheduler.cs]
-dotnet_diagnostic.S1144.severity = none # unused private class — the game instantiates it by reflection
-
 # The startup lambda clears both flags so ReloadQuickstart can run the launch again.
 [Quickstarter.cs]
 dotnet_diagnostic.S3010.severity = none # static field set in a ctor — a relaunch reset, not dead init
