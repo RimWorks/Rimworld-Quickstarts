@@ -50,7 +50,7 @@ public class StatusBox {
     StringBuilder sb = new StringBuilder("Quickstarts_StatusBox_Launching".Translate());
     sb.AppendLine();
     sb.AppendLine();
-    sb.AppendLine(quickstart.GetType().Name.Colorize(ColoredText.DateTimeColor));
+    sb.AppendLine(quickstart.label.Resolve().Colorize(ColoredText.DateTimeColor));
     sb.AppendLine();
     sb.AppendLine(quickstart.description.Resolve().Colorize(ColorLibrary.Grey));
     return sb.ToString();

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using RimWorks.Quickstarts.Verification;
@@ -11,10 +12,21 @@ namespace RimWorks.Quickstarts;
 /// it: every non-abstract subclass with a parameterless constructor is discovered automatically.
 /// </summary>
 public abstract class AbstractQuickstart {
+  private const string ClassSuffix = "Quickstart";
+
   private TaggedString? cachedDescription;
+  private TaggedString? cachedLabel;
 
   /// <summary>One line shown in the picker and the launch status box.</summary>
   public abstract TaggedString description { get; }
+
+  /// <summary>Human title for the picker. Defaults to the class name, de-suffixed and split.</summary>
+  public virtual TaggedString label {
+    get {
+      cachedLabel ??= DefaultLabel();
+      return cachedLabel.Value;
+    }
+  }
 
   /// <summary>Whether the game pauses once the map is ready. On by default so nothing moves before you look.</summary>
   public virtual bool pauseAfterLoad => true;
@@ -77,13 +89,16 @@ public abstract class AbstractQuickstart {
     }
 
     StringBuilder builder = new StringBuilder();
+
+    // The type name, not the label: this is what -quickstart= on the command line takes.
     builder.AppendLine(
-        "Quickstarts_Field_Name".Translate().Colorize(ColoredText.DateTimeColor) + GetType().Name);
+        "Quickstarts_Field_Type".Translate().Colorize(ColoredText.DateTimeColor) + GetType().Name);
     builder.AppendLine();
     builder.AppendLine(
         "Quickstarts_Field_MapSize".Translate().Colorize(ColoredText.TipSectionTitleColor) + $"{mapSize}x{mapSize}");
     builder.AppendLine(
-        "Quickstarts_Field_Difficulty".Translate().Colorize(ColoredText.TipSectionTitleColor) + difficulty.LabelCap);
+        "Quickstarts_Field_Difficulty".Translate().Colorize(ColoredText.TipSectionTitleColor)
+        + difficulty.LabelCap.ToString());
     builder.AppendLine(
         "Quickstarts_Field_Scenario".Translate().Colorize(ColoredText.TipSectionTitleColor)
         + (scenario?.LabelCap.ToString() ?? "None"));
@@ -95,5 +110,14 @@ public abstract class AbstractQuickstart {
 
     cachedDescription = builder.ToString();
     return cachedDescription.Value;
+  }
+
+  private TaggedString DefaultLabel() {
+    string name = GetType().Name;
+    if (name.Length > ClassSuffix.Length && name.EndsWith(ClassSuffix, StringComparison.Ordinal)) {
+      name = name.Substring(0, name.Length - ClassSuffix.Length);
+    }
+
+    return GenText.SplitCamelCase(name);
   }
 }

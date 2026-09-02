@@ -6,8 +6,9 @@
   <Quickstarts_Picker_Title>Pick a quicktest</Quickstarts_Picker_Title>
   <Quickstarts_Picker_Vanilla>Vanilla quicktest</Quickstarts_Picker_Vanilla>
   <Quickstarts_Picker_VanillaBlurb>RimWorld's own Crashlanded quicktest</Quickstarts_Picker_VanillaBlurb>
+  <Quickstarts_Picker_Launch>Launch {0}</Quickstarts_Picker_Launch>
 
-  <Quickstarts_Field_Name>Quickstart: </Quickstarts_Field_Name>
+  <Quickstarts_Field_Type>Type: </Quickstarts_Field_Type>
   <Quickstarts_Field_MapSize>Map size: </Quickstarts_Field_MapSize>
   <Quickstarts_Field_Difficulty>Difficulty: </Quickstarts_Field_Difficulty>
   <Quickstarts_Field_Scenario>Scenario: </Quickstarts_Field_Scenario>
