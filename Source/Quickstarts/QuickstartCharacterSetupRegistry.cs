@@ -35,7 +35,7 @@ public static class QuickstartCharacterSetupRegistry {
       try {
         list[i](pawn);
       } catch (Exception ex) {
-        Logger.Error($"Character setup {i} for pawn {pawnIndex} threw: {ex}");
+        Logger.Error(ex, $"Character setup {i} for pawn {pawnIndex} threw");
       }
     }
   }

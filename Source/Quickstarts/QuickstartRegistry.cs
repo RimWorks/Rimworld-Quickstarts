@@ -36,7 +36,7 @@ public static class QuickstartRegistry {
     try {
       return (AbstractQuickstart)Activator.CreateInstance(type);
     } catch (Exception ex) {
-      Logger.Error($"Could not instantiate quickstart {type.FullName}: {ex}");
+      Logger.Error(ex, $"Could not instantiate quickstart {type.FullName}");
       return null;
     }
   }
@@ -45,7 +45,9 @@ public static class QuickstartRegistry {
     List<Type> found = [];
     foreach (Type type in typeof(AbstractQuickstart).AllSubclassesNonAbstract()) {
       if (type.GetConstructor(Type.EmptyTypes) == null) {
-        Logger.Warning($"Skipping quickstart {type.FullName}: it has no parameterless constructor.");
+        Logger.Warn(
+            "Skipping quickstart {Quickstart}: it has no parameterless constructor.",
+            new object?[] { type.FullName });
         continue;
       }
 

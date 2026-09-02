@@ -40,7 +40,7 @@ public static class VanillaQuicktest {
 
     FieldInfo? guard = typeof(QuickStarter).GetField("quickStarted", BindingFlags.Static | BindingFlags.NonPublic);
     if (guard == null) {
-      Logger.Warning("QuickStarter.quickStarted is gone; -quicktest will load vanilla's map, not the picker.");
+      Logger.Warn("QuickStarter.quickStarted is gone; -quicktest will load vanilla's map, not the picker.");
       return;
     }
 
@@ -71,7 +71,7 @@ public static class VanillaQuicktest {
           try {
             Configuring?.Invoke();
           } catch (Exception ex) {
-            Logger.Error($"A vanilla quicktest subscriber threw: {ex}");
+            Logger.Error(ex, "A vanilla quicktest subscriber threw");
           }
 
           PageUtility.InitGameStart();

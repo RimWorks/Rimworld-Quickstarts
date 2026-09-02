@@ -9,5 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*" ExcludeAssets="runtime" PrivateAssets="all" />
+    <!-- Compile-only: the RimLogging mod ships the dll, so a bundled copy would load twice. -->
+    <PackageReference Include="RimWorks.RimLogging" Version="2.4.*" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
 </Project>

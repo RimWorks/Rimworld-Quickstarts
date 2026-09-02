@@ -24,9 +24,9 @@ public static class VerificationReport {
 
     try {
       File.WriteAllText(path, Build(quickstartName, verification, passed));
-      Logger.Message($"Wrote report to {path}");
+      Logger.Info("Wrote report to {Path}", new object?[] { path });
     } catch (Exception ex) {
-      Logger.Error($"Failed to write report to {path}: {ex}");
+      Logger.Error(ex, $"Failed to write report to {path}");
     }
   }
 
@@ -39,7 +39,7 @@ public static class VerificationReport {
     try {
       return Path.Combine(GenFilePaths.SaveDataFolderPath, DefaultFileName);
     } catch (Exception ex) {
-      Logger.Error($"Could not resolve a default report path: {ex.Message}");
+      Logger.Error(ex, "Could not resolve a default report path");
       return null;
     }
   }

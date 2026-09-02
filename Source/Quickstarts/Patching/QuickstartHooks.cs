@@ -74,6 +74,6 @@ public static class QuickstartHooks {
     }
 
     loggedMissingField = true;
-    Logger.Warning(message);
+    Logger.Warn(message);
   }
 }

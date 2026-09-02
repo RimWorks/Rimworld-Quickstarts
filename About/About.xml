@@ -8,8 +8,17 @@
     <li>1.6</li>
   </supportedVersions>
   <description>Developer tool. Define fully-configured boot-into-game scenarios in C#, launch them from the command line or the dev quicktest menu, and run them as smoke tests with assert-and-exit CI mode. Needs Harmony or Concord.</description>
+  <modDependencies>
+    <li>
+      <packageId>RimWorks.RimLogging</packageId>
+      <displayName>RimLogging</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/3733484696</steamWorkshopUrl>
+      <downloadUrl>https://github.com/RimWorks/rimworld-logging-framework/releases</downloadUrl>
+    </li>
+  </modDependencies>
   <loadAfter>
     <li>brrainz.harmony</li>
     <li>concordlib.concord</li>
+    <li>RimWorks.RimLogging</li>
   </loadAfter>
 </ModMetaData>

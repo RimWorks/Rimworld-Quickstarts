@@ -88,7 +88,9 @@ public class Quickstarter {
 
     if (!Prefs.DevMode) {
       if (requested != null) {
-        Logger.Warning($"-{QuickstartArgs.SelectArg} was passed, but dev mode is off, so no quickstart will run.");
+        Logger.Warn(
+            "-{Arg} was passed, but dev mode is off, so no quickstart will run.",
+            new object?[] { QuickstartArgs.SelectArg });
       }
 
       return null;
@@ -103,11 +105,11 @@ public class Quickstarter {
   private static Type? FromName(string requested) {
     Type? type = QuickstartLookup.Resolve(requested, QuickstartRegistry.AllTypes, out string? error);
     if (type == null) {
-      Logger.Error($"-{QuickstartArgs.SelectArg}: {error}");
+      Logger.Error("-{Arg}: {Reason}", new object?[] { QuickstartArgs.SelectArg, error });
       return null;
     }
 
-    Logger.Message($"Command line picked the {type.Name} quickstart.");
+    Logger.Info("Command line picked the {Quickstart} quickstart.", new object?[] { type.Name });
     return type;
   }
 
@@ -119,7 +121,7 @@ public class Quickstarter {
 
     Type? type = QuickstartLookup.Resolve(name, QuickstartRegistry.AllTypes, out string? error);
     if (type == null) {
-      Logger.Error($"Default quickstart in mod settings: {error}");
+      Logger.Error("Default quickstart in mod settings: {Reason}", new object?[] { error });
     }
 
     return type;
@@ -143,7 +145,9 @@ public class Quickstarter {
     QuickstartVerification? verification = quickstart.Verify();
 
     if (verification == null) {
-      Logger.Message($"Verify mode requested but '{name}' has no Verify(); exiting 0.");
+      Logger.Info(
+          "Verify mode requested but '{Quickstart}' has no Verify(); exiting 0.",
+          new object?[] { name });
       VerificationReport.Write(name, null, true);
       Exit(0);
       return;
@@ -158,19 +162,21 @@ public class Quickstarter {
       }
 
       if (result.Passed) {
-        Logger.Message(line);
+        Logger.Info(line);
       } else {
         Logger.Error(line);
       }
     }
 
-    Logger.Message($"Verification {(passed ? "PASSED" : "FAILED")} for '{name}'.");
+    Logger.Info(
+        "Verification {Outcome} for '{Quickstart}'.",
+        new object?[] { passed ? "PASSED" : "FAILED", name });
     VerificationReport.Write(name, verification, passed);
     Exit(passed ? 0 : 1);
   }
 
   private static void Exit(int code) {
-    Logger.Message($"Exiting with code {code}.");
+    Logger.Info("Exiting with code {Code}.", new object?[] { code });
 
     // Application.Quit, not Environment.Exit: an AppDomain unload from a Unity callback hangs.
     Application.Quit(code);
@@ -234,9 +240,13 @@ public class Quickstarter {
 
       // An empty list means PrepareColonists silently does nothing and the run still looks fine.
       if (pawns.Count == 0) {
-        Logger.Warning(
-            $"No colonists passed the readiness filter. World has {Find.World.PlayerPawnsForStoryteller.Count()}"
-            + $" player pawns; map has {Find.CurrentMap?.mapPawns?.FreeColonistsSpawnedCount ?? -1} spawned colonists.");
+        Logger.Warn(
+            "No colonists passed the readiness filter. World has {WorldPawns} player pawns;"
+            + " map has {SpawnedColonists} spawned colonists.",
+            new object?[] {
+              Find.World.PlayerPawnsForStoryteller.Count(),
+              Find.CurrentMap?.mapPawns?.FreeColonistsSpawnedCount ?? -1,
+            });
       }
 
       // Counted before the handoff: a quickstart may drain the list, so Count reads zero after.
@@ -248,9 +258,11 @@ public class Quickstarter {
         Find.TickManager.Pause();
       }
 
-      Logger.Message($"Loaded '{quickstart.GetType().Name}' with {count} colonists.");
+      Logger.Info(
+          "Loaded '{Quickstart}' with {Colonists} colonists.",
+          new object?[] { quickstart.GetType().Name, count });
     } catch (Exception ex) {
-      Logger.Error($"Post-load setup failed: {ex}");
+      Logger.Error(ex, "Post-load setup failed");
     }
 
     if (QuickstartArgs.VerifyMode) {

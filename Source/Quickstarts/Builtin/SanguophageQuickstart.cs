@@ -28,7 +28,9 @@ public class SanguophageQuickstart : AbstractQuickstart {
         return sanguophage;
       }
 
-      Logger.Warning($"SanguophageQuickstart: no '{ScenarioName}' scenario (Biotech off?); using Crashlanded.");
+      Logger.Warn(
+          "SanguophageQuickstart: no '{Scenario}' scenario (Biotech off?); using Crashlanded.",
+          new object?[] { ScenarioName });
       return ScenarioDefOf.Crashlanded;
     }
   }

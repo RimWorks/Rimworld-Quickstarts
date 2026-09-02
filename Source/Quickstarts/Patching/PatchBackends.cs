@@ -56,12 +56,14 @@ public static class PatchBackends {
       try {
         registration.Backend.Apply();
       } catch (Exception ex) {
-        Logger.Error($"{registration.Backend.Name} backend failed to apply patches: {ex}");
+        Logger.Error(ex, $"{registration.Backend.Name} backend failed to apply patches");
         continue;
       }
 
       Ready = true;
-      Logger.Message($"Patched via {registration.Backend.Name} (priority {registration.Priority}).");
+      Logger.Info(
+          "Patched via {Backend} (priority {Priority}).",
+          new object?[] { registration.Backend.Name, registration.Priority });
       return;
     }
 

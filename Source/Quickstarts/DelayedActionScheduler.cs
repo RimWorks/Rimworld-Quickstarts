@@ -30,7 +30,7 @@ public static class DelayedActionScheduler {
       try {
         item.action?.Invoke();
       } catch (Exception ex) {
-        Logger.Error($"Scheduled action threw: {ex}");
+        Logger.Error(ex, "Scheduled action threw");
       } finally {
         Scheduled.RemoveAt(i);
       }
