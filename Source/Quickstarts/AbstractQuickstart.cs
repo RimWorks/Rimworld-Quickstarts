@@ -34,6 +34,15 @@ public abstract class AbstractQuickstart {
   /// <summary>Ticks to run before Verify(). Zero asserts against a map nothing has happened on.</summary>
   public virtual int ticksBeforeVerify => 0;
 
+  /// <summary>Whether red errors logged during the run fail it. On by default.</summary>
+  public virtual bool failOnLogError => true;
+
+  /// <summary>How many red errors to tolerate before failing, for a known-noisy dependency.</summary>
+  public virtual int allowedLogErrors => 0;
+
+  /// <summary>Substrings of errors that never count against the budget. Still reported.</summary>
+  public virtual IEnumerable<string> ignoredLogErrors => [];
+
   /// <summary>Square map edge length in cells.</summary>
   public virtual int mapSize => 75;
 

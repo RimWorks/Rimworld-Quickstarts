@@ -17,12 +17,14 @@ public static class VerificationReport {
   /// <param name="seed">World seed the run used, so a failure can be replayed.</param>
   /// <param name="ticksRun">Ticks driven before the assertions ran.</param>
   /// <param name="verification">Assertions that ran, or null when the quickstart had none.</param>
+  /// <param name="log">What the game logged during the run.</param>
   /// <param name="passed">Overall outcome.</param>
   public static void Write(
       string quickstartName,
       string seed,
       int ticksRun,
       QuickstartVerification? verification,
+      LogSummary log,
       bool passed) {
     string? path = ResolvePath();
     if (path == null) {
@@ -30,7 +32,7 @@ public static class VerificationReport {
     }
 
     try {
-      File.WriteAllText(path, Build(quickstartName, seed, ticksRun, verification, passed));
+      File.WriteAllText(path, Build(quickstartName, seed, ticksRun, verification, log, passed));
       Logger.Info("Wrote report to {Path}", new object?[] { path });
     } catch (Exception ex) {
       Logger.Error(ex, $"Failed to write report to {path}");
@@ -56,6 +58,7 @@ public static class VerificationReport {
       string seed,
       int ticksRun,
       QuickstartVerification? verification,
+      LogSummary log,
       bool passed) {
     StringBuilder sb = new StringBuilder();
     sb.Append("{\n");
@@ -63,12 +66,34 @@ public static class VerificationReport {
     sb.Append("  \"seed\": ").Append(JsonString(seed)).Append(",\n");
     sb.Append("  \"ticksRun\": ").Append(ticksRun).Append(",\n");
     sb.Append("  \"passed\": ").Append(passed ? "true" : "false").Append(",\n");
+    sb.Append("  \"logErrors\": ").Append(log.Errors.Count).Append(",\n");
+    sb.Append("  \"logWarnings\": ").Append(log.Warnings).Append(",\n");
+    sb.Append("  \"logTruncated\": ").Append(log.Truncated ? "true" : "false").Append(",\n");
+    sb.Append("  \"preLaunchErrors\": ").Append(log.PreLaunchErrors).Append(",\n");
     sb.Append("  \"total\": ").Append(verification?.Results.Count ?? 0).Append(",\n");
     sb.Append("  \"failed\": ").Append(CountFailed(verification)).Append(",\n");
     sb.Append("  \"results\": [");
     AppendResults(sb, verification);
+    sb.Append("],\n");
+    sb.Append("  \"errors\": [");
+    AppendErrors(sb, log);
     sb.Append("]\n}\n");
     return sb.ToString();
+  }
+
+  private static void AppendErrors(StringBuilder sb, LogSummary log) {
+    for (int i = 0; i < log.Errors.Count; i++) {
+      CapturedError error = log.Errors[i];
+      sb.Append(i == 0 ? "\n" : ",\n");
+      sb.Append("    { \"text\": ").Append(JsonString(error.Text));
+      sb.Append(", \"repeats\": ").Append(error.Repeats);
+      sb.Append(", \"stackTrace\": ").Append(JsonString(error.StackTrace));
+      sb.Append(" }");
+    }
+
+    if (log.Errors.Count > 0) {
+      sb.Append("\n  ");
+    }
   }
 
   private static int CountFailed(QuickstartVerification? verification) {

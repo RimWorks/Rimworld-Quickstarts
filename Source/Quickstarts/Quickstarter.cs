@@ -146,16 +146,31 @@ public class Quickstarter {
     string name = quickstart.GetType().Name;
     QuickstartVerification? verification = quickstart.Verify();
 
+    // Collected before the PASS/FAIL lines below: those go through Logger.Error and would
+    // otherwise count themselves.
+    LogSummary log = LogCapture.Collect();
+    int budgetErrors = log.CountAgainstBudget(quickstart.ignoredLogErrors);
+    bool logClean = !quickstart.failOnLogError || budgetErrors <= quickstart.allowedLogErrors;
+
+    if (log.Errors.Count > 0) {
+      Logger.Warn(
+          "The game logged {Errors} errors during the run ({Counted} against a budget of"
+          + " {Budget}), plus {Warnings} warnings.",
+          new object?[] {
+            log.Errors.Count, budgetErrors, quickstart.allowedLogErrors, log.Warnings,
+          });
+    }
+
     if (verification == null) {
       Logger.Info(
-          "Verify mode requested but '{Quickstart}' has no Verify(); exiting 0.",
+          "Verify mode requested but '{Quickstart}' has no Verify().",
           new object?[] { name });
-      VerificationReport.Write(name, seed, ticksRun, null, true);
-      Exit(0);
+      VerificationReport.Write(name, seed, ticksRun, null, log, logClean);
+      Exit(logClean ? 0 : 1);
       return;
     }
 
-    bool passed = verification.AllPassed;
+    bool passed = verification.AllPassed && logClean;
     for (int i = 0; i < verification.Results.Count; i++) {
       AssertResult result = verification.Results[i];
       string line = $"  {(result.Passed ? "PASS" : "FAIL")} {result.Label}";
@@ -173,7 +188,7 @@ public class Quickstarter {
     Logger.Info(
         "Verification {Outcome} for '{Quickstart}'.",
         new object?[] { passed ? "PASSED" : "FAILED", name });
-    VerificationReport.Write(name, seed, ticksRun, verification, passed);
+    VerificationReport.Write(name, seed, ticksRun, verification, log, passed);
     Exit(passed ? 0 : 1);
   }
 
@@ -225,6 +240,12 @@ public class Quickstarter {
     Logger.Info(
         "Launching '{Quickstart}' with world seed {Seed}.",
         new object?[] { Quickstart.GetType().Name, seedUsed });
+
+    // Armed before generation so load-time errors stay out of the run's count. Verify mode only:
+    // clearing the log under an interactive launch would throw away what you were reading.
+    if (QuickstartArgs.VerifyMode) {
+      LogCapture.Arm();
+    }
 
     LongEventHandler.QueueLongEvent(
         () => {

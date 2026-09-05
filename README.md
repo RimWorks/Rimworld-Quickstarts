@@ -99,6 +99,18 @@ to drive the simulation first, which is where most tick-path bugs surface.
 public override int ticksBeforeVerify => 2500;   // about 40 in-game seconds
 ```
 
+A run also fails when the game logs a red error, even if every assertion holds. That is the check
+that catches a broken mod interaction. Errors from before the launch, during mod and def loading,
+are reported separately and never fail the run.
+
+```csharp
+public override bool failOnLogError => false;                  // turn the check off
+public override int allowedLogErrors => 2;                     // tolerate a known-noisy dependency
+public override IEnumerable<string> ignoredLogErrors => ["null hediff"];   // substrings, no case
+```
+
+An ignored error still shows up in the report. It just does not count against the budget.
+
 The report looks like this:
 
 ```json
@@ -107,13 +119,22 @@ The report looks like this:
   "seed": "abc123",
   "ticksRun": 2500,
   "passed": true,
+  "logErrors": 0,
+  "logWarnings": 3,
+  "logTruncated": false,
+  "preLaunchErrors": 0,
   "total": 1,
   "failed": 0,
   "results": [
     { "label": "colonists spawned", "passed": true, "detail": null }
-  ]
+  ],
+  "errors": []
 }
 ```
+
+RimWorld keeps the last 1000 log lines and collapses a message repeated in a row into a `repeats`
+count. So `logErrors` is a floor, not an exact total, and `logTruncated` tells you when lines were
+dropped.
 
 ## Build
 
