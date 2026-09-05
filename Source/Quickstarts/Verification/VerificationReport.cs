@@ -14,16 +14,18 @@ public static class VerificationReport {
 
   /// <summary>Writes the report for one run.</summary>
   /// <param name="quickstartName">Class name of the quickstart that ran.</param>
+  /// <param name="seed">World seed the run used, so a failure can be replayed.</param>
   /// <param name="verification">Assertions that ran, or null when the quickstart had none.</param>
   /// <param name="passed">Overall outcome.</param>
-  public static void Write(string quickstartName, QuickstartVerification? verification, bool passed) {
+  public static void Write(
+      string quickstartName, string seed, QuickstartVerification? verification, bool passed) {
     string? path = ResolvePath();
     if (path == null) {
       return;
     }
 
     try {
-      File.WriteAllText(path, Build(quickstartName, verification, passed));
+      File.WriteAllText(path, Build(quickstartName, seed, verification, passed));
       Logger.Info("Wrote report to {Path}", new object?[] { path });
     } catch (Exception ex) {
       Logger.Error(ex, $"Failed to write report to {path}");
@@ -44,10 +46,12 @@ public static class VerificationReport {
     }
   }
 
-  private static string Build(string quickstartName, QuickstartVerification? verification, bool passed) {
+  private static string Build(
+      string quickstartName, string seed, QuickstartVerification? verification, bool passed) {
     StringBuilder sb = new StringBuilder();
     sb.Append("{\n");
     sb.Append("  \"quickstart\": ").Append(JsonString(quickstartName)).Append(",\n");
+    sb.Append("  \"seed\": ").Append(JsonString(seed)).Append(",\n");
     sb.Append("  \"passed\": ").Append(passed ? "true" : "false").Append(",\n");
     sb.Append("  \"total\": ").Append(verification?.Results.Count ?? 0).Append(",\n");
     sb.Append("  \"failed\": ").Append(CountFailed(verification)).Append(",\n");

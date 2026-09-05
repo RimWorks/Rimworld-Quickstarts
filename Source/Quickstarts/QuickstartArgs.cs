@@ -14,12 +14,16 @@ public static class QuickstartArgs {
   /// <summary>Where the JSON report goes: <c>-quickstartreport=/tmp/report.json</c>. Implies verify.</summary>
   public const string ReportArg = "quickstartreport";
 
+  /// <summary>Overrides the world seed: <c>-quickstartseed=abc123</c>.</summary>
+  public const string SeedArg = "quickstartseed";
+
   /// <summary>Environment fallback for <see cref="SelectArg"/>, for shells that mangle game args.</summary>
   public const string SelectEnvVar = "RIMWORLD_QUICKSTART";
 
   private static bool parsed;
   private static string? selectedName;
   private static string? reportPath;
+  private static string? seed;
   private static bool verifyMode;
 
   /// <summary>Quickstart name the run asked for, or null when none was given.</summary>
@@ -46,6 +50,14 @@ public static class QuickstartArgs {
     }
   }
 
+  /// <summary>World seed the run asked for, or null when it did not ask for one.</summary>
+  public static string? Seed {
+    get {
+      Parse();
+      return seed;
+    }
+  }
+
   private static void Parse() {
     if (parsed) {
       return;
@@ -61,6 +73,10 @@ public static class QuickstartArgs {
 
     if (GenCommandLine.TryGetCommandLineArg(ReportArg, out string path)) {
       reportPath = Clean(path);
+    }
+
+    if (GenCommandLine.TryGetCommandLineArg(SeedArg, out string requestedSeed)) {
+      seed = Clean(requestedSeed);
     }
 
     // A report is only ever written by a verify run, so asking for one turns verify on.

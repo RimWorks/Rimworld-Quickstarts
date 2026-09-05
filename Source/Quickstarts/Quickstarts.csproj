@@ -12,4 +12,7 @@
     <!-- Compile-only: the RimLogging mod ships the dll, so a bundled copy would load twice. -->
     <PackageReference Include="RimWorks.RimLogging" Version="2.*" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Quickstarts.Tests" />
+  </ItemGroup>
 </Project>

@@ -23,6 +23,8 @@ public class Quickstarter {
 
   private readonly StatusBox? statusBox;
 
+  private string seedUsed = string.Empty;
+
   static Quickstarter() {
     Instance = new Quickstarter(ConfiguredQuickstart());
 
@@ -60,8 +62,6 @@ public class Quickstarter {
 
   /// <summary>What is being launched, or null when nothing is configured.</summary>
   public AbstractQuickstart? Quickstart { get; }
-
-  private static string Seed => GenText.RandomSeedString();
 
   /// <summary>Rebuilds the game from whatever the command line or settings currently name.</summary>
   public static void ReloadQuickstart() {
@@ -140,7 +140,7 @@ public class Quickstarter {
         GameAndMapInitExceptionHandlers.ErrorWhileGeneratingMap);
   }
 
-  private static void RunVerification(AbstractQuickstart quickstart) {
+  private static void RunVerification(AbstractQuickstart quickstart, string seed) {
     string name = quickstart.GetType().Name;
     QuickstartVerification? verification = quickstart.Verify();
 
@@ -148,7 +148,7 @@ public class Quickstarter {
       Logger.Info(
           "Verify mode requested but '{Quickstart}' has no Verify(); exiting 0.",
           new object?[] { name });
-      VerificationReport.Write(name, null, true);
+      VerificationReport.Write(name, seed, null, true);
       Exit(0);
       return;
     }
@@ -171,7 +171,7 @@ public class Quickstarter {
     Logger.Info(
         "Verification {Outcome} for '{Quickstart}'.",
         new object?[] { passed ? "PASSED" : "FAILED", name });
-    VerificationReport.Write(name, verification, passed);
+    VerificationReport.Write(name, seed, verification, passed);
     Exit(passed ? 0 : 1);
   }
 
@@ -183,6 +183,11 @@ public class Quickstarter {
   }
 
   private void StartGame() {
+    seedUsed = SeedResolver.Resolve(QuickstartArgs.Seed, Quickstart!.seed) ?? GenText.RandomSeedString();
+    Logger.Info(
+        "Launching '{Quickstart}' with world seed {Seed}.",
+        new object?[] { Quickstart.GetType().Name, seedUsed });
+
     LongEventHandler.QueueLongEvent(
         () => {
           MemoryUtility.ClearAllMapsAndWorld();
@@ -214,13 +219,24 @@ public class Quickstarter {
 
     Current.Game.World = WorldGenerator.GenerateWorld(
         quickstart.planetCoverage,
-        Seed,
+        seedUsed,
         OverallRainfall.Normal,
         OverallTemperature.Normal,
         OverallPopulation.Normal,
         LandmarkDensity.Normal);
 
-    Find.GameInitData.ChooseRandomStartingTile();
+    // PushState, not Rand.Seed: the bare setter logs a red error when the state stack is empty.
+    Rand.PushState(GenText.StableStringHash(seedUsed));
+    try {
+      Find.GameInitData.ChooseRandomStartingTile();
+    } finally {
+      Rand.PopState();
+    }
+
+    Logger.Info(
+        "Seed {Seed} picked starting tile {Tile}.",
+        new object?[] { seedUsed, Find.GameInitData.startingTile });
+
     Find.GameInitData.mapSize = quickstart.mapSize;
     quickstart.PostApplyConfiguration();
 
@@ -266,7 +282,7 @@ public class Quickstarter {
     }
 
     if (QuickstartArgs.VerifyMode) {
-      RunVerification(quickstart);
+      RunVerification(quickstart, seedUsed);
     }
   }
 }

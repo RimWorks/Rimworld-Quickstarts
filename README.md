@@ -70,6 +70,18 @@ Three ways, in the order they win:
 With none of those, the game starts normally and the main menu's dev quicktest button opens a
 picker instead.
 
+## Fix the world seed
+
+By default every launch generates a new planet, so a CI failure cannot be replayed. Override
+`seed` on the quickstart, or pass `-quickstartseed=abc123` to beat whatever the quickstart says.
+The seed that ran goes into the log and into the JSON report.
+
+```csharp
+public override string? seed => "abc123";
+```
+
+Terrain, the starting tile and the map are fixed by this. Colonist names and skills are not yet.
+
 ## CI mode
 
 Add `-quickstartverify` to run `Verify()` and exit 0 or 1. Add `-quickstartreport=<path>` to
@@ -84,6 +96,7 @@ The report looks like this:
 ```json
 {
   "quickstart": "TinyColony",
+  "seed": "abc123",
   "passed": true,
   "total": 1,
   "failed": 0,

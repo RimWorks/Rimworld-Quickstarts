@@ -14,6 +14,9 @@ public class ScenarioTestQuickstart : AbstractQuickstart {
       "Starts the scenario selected in Quickstarts mod settings, with default pawn generation.";
 
   /// <inheritdoc/>
+  public override string? seed => "quickstarts-ci";
+
+  /// <inheritdoc/>
   public override ScenarioDef scenario {
     get {
       string? defName = QuickstartsMod.Settings.testScenarioDefName;

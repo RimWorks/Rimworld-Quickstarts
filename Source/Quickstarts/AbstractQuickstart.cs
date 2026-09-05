@@ -37,6 +37,9 @@ public abstract class AbstractQuickstart {
   /// <summary>World size passed to the generator. Small keeps generation under a second.</summary>
   public virtual float planetCoverage => 0.05f;
 
+  /// <summary>Fixed world seed, so a failed CI run can be replayed. Null picks a fresh one every launch.</summary>
+  public virtual string? seed => null;
+
   /// <summary>Storyteller the game starts with.</summary>
   public virtual StorytellerDef storyteller => StorytellerDefOf.Cassandra;
 
