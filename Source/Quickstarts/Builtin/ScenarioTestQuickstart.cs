@@ -17,6 +17,9 @@ public class ScenarioTestQuickstart : AbstractQuickstart {
   public override string? seed => "quickstarts-ci";
 
   /// <inheritdoc/>
+  public override int ticksBeforeVerify => 250;
+
+  /// <inheritdoc/>
   public override ScenarioDef scenario {
     get {
       string? defName = QuickstartsMod.Settings.testScenarioDefName;

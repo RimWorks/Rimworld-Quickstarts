@@ -12,7 +12,7 @@ REPORT="${2:-/tmp/quickstart-report.json}"
 LOG="${QUICKSTART_LOG:-/tmp/rimworld-quickstart.log}"
 SEED="${QUICKSTART_SEED:-}"
 
-rm -f "$REPORT"
+rm -f "$REPORT" "$LOG"
 
 if ! command -v xvfb-run >/dev/null 2>&1; then
   echo "xvfb-run not found. Install xorg-server-xvfb (Arch) / xvfb (Debian)." >&2

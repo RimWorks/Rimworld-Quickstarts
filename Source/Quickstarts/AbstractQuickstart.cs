@@ -31,6 +31,9 @@ public abstract class AbstractQuickstart {
   /// <summary>Whether the game pauses once the map is ready. On by default so nothing moves before you look.</summary>
   public virtual bool pauseAfterLoad => true;
 
+  /// <summary>Ticks to run before Verify(). Zero asserts against a map nothing has happened on.</summary>
+  public virtual int ticksBeforeVerify => 0;
+
   /// <summary>Square map edge length in cells.</summary>
   public virtual int mapSize => 75;
 

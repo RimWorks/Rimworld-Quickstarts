@@ -92,12 +92,20 @@ also write a JSON report, which turns on verify by itself.
 scripts/run-quickstart.sh TinyColony /tmp/report.json
 ```
 
+By default `Verify()` runs against a map nothing has happened on yet. Override `ticksBeforeVerify`
+to drive the simulation first, which is where most tick-path bugs surface.
+
+```csharp
+public override int ticksBeforeVerify => 2500;   // about 40 in-game seconds
+```
+
 The report looks like this:
 
 ```json
 {
   "quickstart": "TinyColony",
   "seed": "abc123",
+  "ticksRun": 2500,
   "passed": true,
   "total": 1,
   "failed": 0,

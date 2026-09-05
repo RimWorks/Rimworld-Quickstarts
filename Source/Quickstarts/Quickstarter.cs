@@ -142,7 +142,7 @@ public class Quickstarter {
         GameAndMapInitExceptionHandlers.ErrorWhileGeneratingMap);
   }
 
-  private static void RunVerification(AbstractQuickstart quickstart, string seed) {
+  private static void RunVerification(AbstractQuickstart quickstart, string seed, int ticksRun) {
     string name = quickstart.GetType().Name;
     QuickstartVerification? verification = quickstart.Verify();
 
@@ -150,7 +150,7 @@ public class Quickstarter {
       Logger.Info(
           "Verify mode requested but '{Quickstart}' has no Verify(); exiting 0.",
           new object?[] { name });
-      VerificationReport.Write(name, seed, null, true);
+      VerificationReport.Write(name, seed, ticksRun, null, true);
       Exit(0);
       return;
     }
@@ -173,7 +173,7 @@ public class Quickstarter {
     Logger.Info(
         "Verification {Outcome} for '{Quickstart}'.",
         new object?[] { passed ? "PASSED" : "FAILED", name });
-    VerificationReport.Write(name, seed, verification, passed);
+    VerificationReport.Write(name, seed, ticksRun, verification, passed);
     Exit(passed ? 0 : 1);
   }
 
@@ -199,6 +199,25 @@ public class Quickstarter {
 
     seedHeld = false;
     Rand.PopState();
+  }
+
+  private static int RunTicks(int count) {
+    if (count <= 0) {
+      return 0;
+    }
+
+    TickManager ticks = Find.TickManager;
+    int start = ticks.TicksGame;
+
+    // DoSingleTick reads neither Paused nor CurTimeSpeed, so a red error cannot stall the loop.
+    for (int i = 0; i < count; i++) {
+      ticks.DoSingleTick();
+    }
+
+    // Counted, not assumed: DebugSettings.fastEcology advances 2000 ticks per call.
+    int ran = ticks.TicksGame - start;
+    Logger.Info("Ran {Ticks} ticks before verifying.", new object?[] { ran });
+    return ran;
   }
 
   private void StartGame() {
@@ -310,7 +329,12 @@ public class Quickstarter {
     }
 
     if (QuickstartArgs.VerifyMode) {
-      RunVerification(quickstart, seedUsed);
+      // Queued, not called: OnLoaded runs inside a tick, and DoSingleTick cannot nest.
+      LongEventHandler.QueueLongEvent(
+          () => RunVerification(quickstart, seedUsed, RunTicks(quickstart.ticksBeforeVerify)),
+          "Quickstarts_Verify",
+          false,
+          null);
     }
   }
 }
