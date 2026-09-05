@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      checks: write
     steps:
       - uses: actions/checkout@v6
 
@@ -26,3 +28,123 @@ jobs:
 
       - name: Build
         run: dotnet build Quickstarts.slnx -c Release
+
+      - name: Run tests
+        run: |
+          dotnet test Quickstarts.slnx -c Release --no-build \
+            --logger "trx;LogFileName=tests.trx" --results-directory "$RUNNER_TEMP/test-results"
+
+      # if: always() so a failing test still gets annotated. Without it the reporter is
+      # skipped by the very failure it exists to point at.
+      - name: Publish the test results
+        if: always()
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
+        with:
+          name: unit tests
+          path: ${{ runner.temp }}/test-results/*.trx
+          reporter: dotnet-trx
+          fail-on-error: false
+
+  game-image:
+    name: rimworld 1.6 image
+    uses: ./.github/workflows/game-image.yml
+    # A called workflow cannot hold more than its caller, and the repo default is read.
+    permissions:
+      contents: read
+      packages: write
+    secrets: inherit
+
+  quickstart:
+    name: quickstart (${{ matrix.backend }})
+    needs: [game-image]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: read
+      checks: write
+    strategy:
+      fail-fast: false
+      matrix:
+        backend: [harmony]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build the mod
+        run: dotnet build Quickstarts.slnx -c Release
+
+      - name: Stage mods and config
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          .github/scripts/stage-quickstart-mods.sh \
+            "${{ matrix.backend }}" "$RUNNER_TEMP/mods" "$RUNNER_TEMP/config"
+
+          # The repo root is the mod folder once it is built. Source and the git history
+          # are not part of what ships, so they stay out of the container.
+          mkdir -p "$RUNNER_TEMP/mods/Quickstarts"
+          tar -c --exclude=.git --exclude=node_modules --exclude=Source --exclude=artifacts . \
+            | tar -x -C "$RUNNER_TEMP/mods/Quickstarts"
+
+      - name: Run the quickstart
+        env:
+          GAME_IMAGE: ${{ needs.game-image.outputs.image-ref }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GHCR_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+          # The image is the whole game, so this is minutes of silence without a marker.
+          echo "pulling $GAME_IMAGE ..."
+          start=$SECONDS
+          docker pull -q "$GAME_IMAGE"
+          echo "pulled in $((SECONDS - start))s"
+
+          # The container writes its reports as root, so the runner has to read them back.
+          mkdir -p "$PWD/quickstart-out"
+          chmod 777 "$PWD/quickstart-out"
+
+          # The base runs as uid 1000, which cannot write the mount parents docker makes,
+          # so this forces root; HOME then keeps Unity's config out of /root.
+          CFG="/qs-home/.config/unity3d/Ludeon Studios/RimWorld by Ludeon Studios/Config"
+
+          # --init is load bearing: xvfb-run waits for Xvfb to signal SIGUSR1 to its parent,
+          # which never arrives when xvfb-run is itself PID 1.
+          status=0
+          docker run --rm --init --name quickstart-run --user 0 \
+            -e HOME=/qs-home \
+            -v "$RUNNER_TEMP/mods:/game/Mods:ro" \
+            -v "$RUNNER_TEMP/config:$CFG" \
+            -v "$PWD/quickstart-out:/out" \
+            "$GAME_IMAGE" \
+            xvfb-run -a -s '-screen 0 1920x1080x24' \
+              /game/RimWorldLinux -quickstart=ScenarioTestQuickstart \
+                -quickstartreport=/out/report.json \
+                -quickstartjunit=/out/junit.xml \
+                -quickstarttimeout=420 \
+                -logfile /out/Player.log || status=$?
+
+          echo "quickstart exited with $status"
+          [[ -f quickstart-out/report.json ]] && cat quickstart-out/report.json
+          exit "$status"
+
+      - name: Publish the quickstart results
+        if: always()
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
+        with:
+          name: quickstart (${{ matrix.backend }})
+          path: quickstart-out/junit.xml
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Upload the run
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: quickstart-${{ matrix.backend }}
+          path: quickstart-out/
+          if-no-files-found: warn

@@ -1,0 +1,73 @@
+name: game image
+
+# Builds the runnable RimWorld image the quickstart job runs against. Separate from ci so a
+# rebuild can be triggered on its own and the image cannot change as a side effect.
+
+on:
+  workflow_call:
+    inputs:
+      force:
+        description: Rebuild even when the Steam buildid has not moved.
+        type: boolean
+        default: false
+    outputs:
+      image-ref:
+        description: Image ref the quickstart job should pull.
+        value: ${{ jobs.image.outputs.image-ref }}
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Rebuild even when the Steam buildid has not moved.
+        type: boolean
+        default: false
+
+jobs:
+  image:
+    name: rimworld 1.6 image
+    runs-on: ubuntu-latest
+    outputs:
+      image-ref: ${{ steps.image.outputs.image-ref }}
+      skipped: ${{ steps.image.outputs.skipped }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Build RimWorld 1.6 game image
+        id: image
+        uses: RimWorks/steam-game-image-action@adf14e9284efc3d23f726fbdaf566d67efe23f90 # v1.2.0
+        with:
+          steam-username: ${{ secrets.STEAM_USERNAME }}
+          steam-config-vdf: ${{ secrets.STEAM_CONFIG_VDF_B64 }}
+          app-id: '294100'
+          branch: 'version-1.6.4633'
+          # No include-paths, so the whole game lands on the action's xvfb runtime base and
+          # RimWorld can actually be launched from it.
+          image: ghcr.io/${{ github.repository_owner }}/rimworld-game-runnable
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          skip-if-unchanged: ${{ inputs.force && 'false' || 'true' }}
+
+      - name: Refuse to leave the image public
+        env:
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          # This image holds the whole paid game, not just the managed assemblies, so a
+          # publicly pullable package would be redistributing it.
+          name='rimworld-game-runnable'
+
+          # A refused token means the package is not anonymously readable, which is the
+          # outcome we want, so neither call may abort the step.
+          curl -sS -o "${RUNNER_TEMP}/ghcr-token.json" \
+            "https://ghcr.io/token?scope=repository:${OWNER}/${name}:pull&service=ghcr.io" || true
+          token="$(jq -r '.token // empty' "${RUNNER_TEMP}/ghcr-token.json" 2>/dev/null || true)"
+
+          code="$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer ${token}" \
+            "https://ghcr.io/v2/${OWNER}/${name}/tags/list")"
+
+          if [[ "$code" == "200" ]]; then
+            echo "::error::ghcr.io/${OWNER}/${name} is publicly pullable and contains the" \
+                 "whole game. Set the package to private before running the suite again."
+            exit 1
+          fi
+
+          echo "package is not anonymously pullable (HTTP ${code})"
