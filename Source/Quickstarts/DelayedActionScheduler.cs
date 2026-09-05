@@ -27,12 +27,14 @@ public static class DelayedActionScheduler {
         continue;
       }
 
+      // Dropped before the invoke: an action that ticks the game re-enters here and would
+      // otherwise run a second time.
+      Scheduled.RemoveAt(i);
+
       try {
         item.action?.Invoke();
       } catch (Exception ex) {
         Logger.Error(ex, "Scheduled action threw");
-      } finally {
-        Scheduled.RemoveAt(i);
       }
     }
   }
