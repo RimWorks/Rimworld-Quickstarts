@@ -20,6 +20,9 @@ public static class QuickstartArgs {
   /// <summary>Wall-clock limit for the run: <c>-quickstarttimeout=120</c>. Implies verify.</summary>
   public const string TimeoutArg = "quickstarttimeout";
 
+  /// <summary>Where the JUnit XML goes: <c>-quickstartjunit=/tmp/junit.xml</c>. Implies verify.</summary>
+  public const string JUnitArg = "quickstartjunit";
+
   /// <summary>Environment fallback for <see cref="SelectArg"/>, for shells that mangle game args.</summary>
   public const string SelectEnvVar = "RIMWORLD_QUICKSTART";
 
@@ -27,6 +30,7 @@ public static class QuickstartArgs {
   private static string? selectedName;
   private static string? reportPath;
   private static string? seed;
+  private static string? junitPath;
   private static int timeoutSeconds;
   private static bool verifyMode;
 
@@ -70,6 +74,14 @@ public static class QuickstartArgs {
     }
   }
 
+  /// <summary>Where to write JUnit XML, or null when the run did not ask for it.</summary>
+  public static string? JUnitPath {
+    get {
+      Parse();
+      return junitPath;
+    }
+  }
+
   private static void Parse() {
     if (parsed) {
       return;
@@ -97,9 +109,14 @@ public static class QuickstartArgs {
       timeoutSeconds = seconds;
     }
 
+    if (GenCommandLine.TryGetCommandLineArg(JUnitArg, out string junit)) {
+      junitPath = Clean(junit);
+    }
+
     // A report is only ever written by a verify run, so asking for one turns verify on.
     verifyMode = GenCommandLine.CommandLineArgPassed(VerifyArg)
         || !string.IsNullOrEmpty(reportPath)
+        || !string.IsNullOrEmpty(junitPath)
         || timeoutSeconds > 0;
   }
 

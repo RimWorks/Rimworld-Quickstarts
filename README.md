@@ -155,6 +155,34 @@ in, which `timeout` alone cannot tell you.
 
 Stages, in order: `configuring`, `generating-world`, `generating-map`, `ticking`, `verifying`.
 
+## JUnit output
+
+`-quickstartjunit=<path>` writes the same run as JUnit XML, which GitHub Actions and most other CI
+tools read natively. It turns a failed assertion into an annotation on the PR instead of a line in
+a log nobody opens. Independent of the JSON, so a run can write both, either or neither.
+
+```xml
+<testsuites tests="4" failures="0" errors="0">
+  <testsuite name="ScenarioTestQuickstart" tests="4" failures="0" errors="0">
+    <testcase classname="ScenarioTestQuickstart" name="a game exists" />
+    <testcase classname="ScenarioTestQuickstart" name="no log errors" />
+  </testsuite>
+</testsuites>
+```
+
+One assertion is one `<testcase>`. The error budget is a synthetic `no log errors` case, captured
+errors go in `<system-err>`, and a watchdog timeout is an `<error>`. Publish it with:
+
+```yaml
+- uses: mikepenz/action-junit-report@v5
+  if: always()
+  with:
+    report_paths: /tmp/quickstart-junit.xml
+```
+
+This does not feed SonarCloud. The .NET scanner wants VSTest TRX or Sonar's generic format, not
+JUnit.
+
 ## Build
 
 ```bash

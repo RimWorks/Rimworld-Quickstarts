@@ -157,6 +157,12 @@ public class Quickstarter {
     LogSummary log = LogCapture.Collect();
     int budgetErrors = log.CountAgainstBudget(quickstart.ignoredLogErrors);
     bool logClean = !quickstart.failOnLogError || budgetErrors <= quickstart.allowedLogErrors;
+    AssertResult? logCheck = quickstart.failOnLogError
+        ? new AssertResult(
+            "no log errors",
+            logClean,
+            logClean ? null : $"{budgetErrors} errors, budget {quickstart.allowedLogErrors}")
+        : null;
 
     if (log.Errors.Count > 0) {
       Logger.Warn(
@@ -172,6 +178,7 @@ public class Quickstarter {
           "Verify mode requested but '{Quickstart}' has no Verify().",
           new object?[] { name });
       VerificationReport.Write(name, seed, ticksRun, null, log, logClean);
+      JUnitReport.Write(name, null, log, logCheck, null);
       Exit(logClean ? 0 : 1);
       return;
     }
@@ -195,6 +202,7 @@ public class Quickstarter {
         "Verification {Outcome} for '{Quickstart}'.",
         new object?[] { passed ? "PASSED" : "FAILED", name });
     VerificationReport.Write(name, seed, ticksRun, verification, log, passed);
+    JUnitReport.Write(name, verification, log, logCheck, null);
     Exit(passed ? 0 : 1);
   }
 
@@ -252,6 +260,7 @@ public class Quickstarter {
         "'{Quickstart}' timed out after {Seconds}s during {Stage}.",
         new object?[] { name, QuickstartArgs.TimeoutSeconds, Watchdog.Stage });
     VerificationReport.Write(name, seedUsed, 0, null, log, false, Watchdog.Stage);
+    JUnitReport.Write(name, null, log, null, Watchdog.Stage);
     Exit(2);
   }
 
