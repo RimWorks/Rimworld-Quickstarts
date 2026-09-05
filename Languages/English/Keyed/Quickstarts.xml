@@ -2,6 +2,7 @@
 <LanguageData>
   <Quickstarts_StartGame>Jumping into quickstart</Quickstarts_StartGame>
   <Quickstarts_Reload>Reloading quickstart</Quickstarts_Reload>
+  <Quickstarts_SeedRelease>Finishing quickstart setup</Quickstarts_SeedRelease>
 
   <Quickstarts_Picker_Title>Pick a quicktest</Quickstarts_Picker_Title>
   <Quickstarts_Picker_Vanilla>Vanilla quicktest</Quickstarts_Picker_Vanilla>

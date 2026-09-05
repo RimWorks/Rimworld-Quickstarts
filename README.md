@@ -80,7 +80,8 @@ The seed that ran goes into the log and into the JSON report.
 public override string? seed => "abc123";
 ```
 
-Terrain, the starting tile and the map are fixed by this. Colonist names and skills are not yet.
+Two runs on the same seed give you the same planet, the same landing tile, the same map and the
+same colonists. Seeds are only stable within one build of the mod.
 
 ## CI mode
 

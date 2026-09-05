@@ -20,6 +20,7 @@ namespace RimWorks.Quickstarts;
 public class Quickstarter {
   private static bool started;
   private static bool finished;
+  private static bool seedHeld;
 
   private readonly StatusBox? statusBox;
 
@@ -130,6 +131,7 @@ public class Quickstarter {
   private static void Restart(AbstractQuickstart? quickstart) {
     LongEventHandler.QueueLongEvent(
         () => {
+          ReleaseSeed();
           Current.ProgramState = ProgramState.Entry;
           Current.Game = null;
           started = false;
@@ -182,6 +184,23 @@ public class Quickstarter {
     Application.Quit(code);
   }
 
+  // Held across the generation long events. Root.Update only calls EnsureStateStackEmpty when no
+  // long event is pending, so the state survives until the pop event runs.
+  private static void HoldSeed(int seed) {
+    // PushState, not Rand.Seed: the bare setter logs a red error when the state stack is empty.
+    Rand.PushState(seed);
+    seedHeld = true;
+  }
+
+  private static void ReleaseSeed() {
+    if (!seedHeld) {
+      return;
+    }
+
+    seedHeld = false;
+    Rand.PopState();
+  }
+
   private void StartGame() {
     seedUsed = SeedResolver.Resolve(QuickstartArgs.Seed, Quickstart!.seed) ?? GenText.RandomSeedString();
     Logger.Info(
@@ -191,8 +210,18 @@ public class Quickstarter {
     LongEventHandler.QueueLongEvent(
         () => {
           MemoryUtility.ClearAllMapsAndWorld();
-          ApplyConfiguration();
-          PageUtility.InitGameStart();
+          HoldSeed(GenText.StableStringHash(seedUsed));
+
+          try {
+            ApplyConfiguration();
+            PageUtility.InitGameStart();
+          } catch {
+            ReleaseSeed();
+            throw;
+          }
+
+          // The queue is FIFO, so this pops after the map generation InitGameStart just queued.
+          LongEventHandler.QueueLongEvent(ReleaseSeed, "Quickstarts_SeedRelease", false, null);
 
           // Half a second, not zero: pawns finish spawning over the first few ticks.
           DelayedActionScheduler.Schedule(OnLoaded, GenTicks.TicksPerRealSecond / 2);
@@ -225,13 +254,8 @@ public class Quickstarter {
         OverallPopulation.Normal,
         LandmarkDensity.Normal);
 
-    // PushState, not Rand.Seed: the bare setter logs a red error when the state stack is empty.
-    Rand.PushState(GenText.StableStringHash(seedUsed));
-    try {
-      Find.GameInitData.ChooseRandomStartingTile();
-    } finally {
-      Rand.PopState();
-    }
+    // The seed state StartGame pushed is still held here, so the tile is fixed too.
+    Find.GameInitData.ChooseRandomStartingTile();
 
     Logger.Info(
         "Seed {Seed} picked starting tile {Tile}.",
@@ -247,6 +271,9 @@ public class Quickstarter {
   }
 
   private void OnLoaded() {
+    // Backstop: the queued pop never runs if map generation threw.
+    ReleaseSeed();
+
     AbstractQuickstart quickstart = Quickstart!;
 
     try {
@@ -267,6 +294,7 @@ public class Quickstarter {
 
       // Counted before the handoff: a quickstart may drain the list, so Count reads zero after.
       int count = pawns.Count;
+      string names = string.Join(", ", pawns.Select(p => p.LabelShort));
       quickstart.PrepareColonists(pawns);
       quickstart.PostLoaded();
 
@@ -275,8 +303,8 @@ public class Quickstarter {
       }
 
       Logger.Info(
-          "Loaded '{Quickstart}' with {Colonists} colonists.",
-          new object?[] { quickstart.GetType().Name, count });
+          "Loaded '{Quickstart}' with {Colonists} colonists: {Names}.",
+          new object?[] { quickstart.GetType().Name, count, names });
     } catch (Exception ex) {
       Logger.Error(ex, "Post-load setup failed");
     }
