@@ -12,6 +12,62 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  prose:
+    name: prose
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Vale
+        uses: errata-ai/vale-action@85f9f7f2c5f449ac0ae5b66662961bae3f77ca6a # reviewdog
+        with:
+          reporter: github-pr-check
+          fail_on_error: true
+
+  links:
+    name: links
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
+        with:
+          args: --config lychee.toml --no-progress README.md README.template.md
+          fail: true
+
+  workshop-description:
+    name: workshop description
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
+      # semantic-release-steam compiles README.template.md to BBCode on every release, so a
+      # template that will not convert is a broken Workshop page nobody sees until it ships.
+      - name: Compile the template to BBCode
+        run: |
+          npm i --no-save @steamdown/core
+          node --input-type=module -e '
+            import { parse, render } from "@steamdown/core";
+            import { readFileSync } from "node:fs";
+            const [nodes, ctx] = parse(readFileSync("README.template.md", "utf8"));
+            const out = render(nodes, ctx);
+            if (!out.trim()) {
+              throw new Error("README.template.md compiled to nothing");
+            }
+            console.log(out.slice(0, 400));
+          '
+
   build:
     name: build
     runs-on: ubuntu-latest

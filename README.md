@@ -7,10 +7,10 @@
 <img src="https://raw.githubusercontent.com/RimWorks/Rimworld-Quickstarts/main/About/ModIcon.png" alt="Quickstarts icon" width="96" align="right">
 
 A developer tool for RimWorld. Write a boot-into-game scenario in C#, then launch it from the
-dev menu or the command line. The same scenario doubles as a smoke test: run it with a flag and
-the game asserts, writes a JSON report, and exits with a pass or fail code.
+dev menu or the command line. The same scenario doubles as a smoke test. Run it with a flag and
+the game asserts, writes a JSON report, then exits with a pass or fail code.
 
-Requires Harmony or Concord. If both are active, Concord is used.
+Requires Harmony or Concord. Quickstarts prefers Concord when both are active.
 
 ![Quickstarts preview card](https://raw.githubusercontent.com/RimWorks/Rimworld-Quickstarts/main/About/Preview.png)
 
@@ -80,8 +80,8 @@ The seed that ran goes into the log and into the JSON report.
 public override string? seed => "abc123";
 ```
 
-Two runs on the same seed give you the same planet, the same landing tile, the same map and the
-same colonists. Seeds are only stable within one build of the mod.
+Two runs on the same seed give you the same planet, the same landing tile, the same map, and
+the same colonists. Seeds are only stable within one build of the mod.
 
 ## CI mode
 
@@ -100,8 +100,8 @@ public override int ticksBeforeVerify => 2500;   // about 40 in-game seconds
 ```
 
 A run also fails when the game logs a red error, even if every assertion holds. That is the check
-that catches a broken mod interaction. Errors from before the launch, during mod and def loading,
-are reported separately and never fail the run.
+that catches a broken mod interaction. The report counts errors from before the launch, during mod
+and def loading, in their own field, and they never fail the run.
 
 ```csharp
 public override bool failOnLogError => false;                  // turn the check off
@@ -133,8 +133,8 @@ The report looks like this:
 ```
 
 RimWorld keeps the last 1000 log lines and collapses a message repeated in a row into a `repeats`
-count. So `logErrors` is a floor, not an exact total, and `logTruncated` tells you when lines were
-dropped.
+count. So `logErrors` is a floor, not an exact total, and `logTruncated` tells you when the queue
+dropped older lines.
 
 ## Timeouts
 
