@@ -136,6 +136,25 @@ RimWorld keeps the last 1000 log lines and collapses a message repeated in a row
 count. So `logErrors` is a floor, not an exact total, and `logTruncated` tells you when lines were
 dropped.
 
+## Timeouts
+
+`scripts/run-quickstart.sh` wraps the game in `timeout`, so a wedged run cannot hang CI. Set
+`QUICKSTART_TIMEOUT` to change the limit from the default 600 seconds.
+
+The script also arms an in-game watchdog 30 seconds inside that limit, with
+`-quickstarttimeout=<seconds>`. It fires first and writes a report naming the stage the run died
+in, which `timeout` alone cannot tell you.
+
+| Code | Meaning |
+| --- | --- |
+| 0 | every assertion passed and the log was clean |
+| 1 | an assertion failed, or the error budget blew |
+| 2 | the in-game watchdog fired. a report exists, with `stage` |
+| 124 | `timeout` fired. probably no report |
+| 137 | `timeout` needed SIGKILL |
+
+Stages, in order: `configuring`, `generating-world`, `generating-map`, `ticking`, `verifying`.
+
 ## Build
 
 ```bash

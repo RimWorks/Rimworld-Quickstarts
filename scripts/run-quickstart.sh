@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Run a quickstart headlessly (xvfb) and exit with its CI code. Same script locally and in CI.
 # Usage: run-quickstart.sh <QuickstartName> [reportPath]
-# Env:   RIMWORLD_DIR, RIMWORLD_CONFIG, QUICKSTART_LOG, QUICKSTART_SEED. Defaults below.
+# Env:   RIMWORLD_DIR, RIMWORLD_CONFIG, QUICKSTART_LOG, QUICKSTART_SEED, QUICKSTART_TIMEOUT.
+#        The in-game watchdog fires 30s before timeout(1) so it can still write a report.
 
 set -uo pipefail
 
@@ -11,6 +12,7 @@ NAME="${1:?usage: run-quickstart.sh <QuickstartName> [reportPath]}"
 REPORT="${2:-/tmp/quickstart-report.json}"
 LOG="${QUICKSTART_LOG:-/tmp/rimworld-quickstart.log}"
 SEED="${QUICKSTART_SEED:-}"
+TIMEOUT="${QUICKSTART_TIMEOUT:-600}"
 
 rm -f "$REPORT" "$LOG"
 
@@ -36,14 +38,25 @@ ARGS=(-quickstart="$NAME" -quickstartreport="$REPORT" -logfile "$LOG")
 if [[ -n "$SEED" ]]; then
   ARGS+=(-quickstartseed="$SEED")
 fi
+if (( TIMEOUT > 60 )); then
+  ARGS+=(-quickstarttimeout=$((TIMEOUT - 30)))
+fi
 
-xvfb-run -a --server-args="-screen 0 1920x1080x24" ./RimWorldLinux "${ARGS[@]}"
+timeout --kill-after=15 "$TIMEOUT" \
+  xvfb-run -a --server-args="-screen 0 1920x1080x24" ./RimWorldLinux "${ARGS[@]}"
 
 CODE=$?
 
 echo "----------------------------------------"
 echo "quickstart '$NAME' exited with code $CODE"
-grep -F 'picked starting tile' "$LOG" | tail -1
+
+if [[ $CODE -eq 124 || $CODE -eq 137 ]]; then
+  echo "hard timeout after ${TIMEOUT}s. last 40 log lines:"
+  tail -40 "$LOG"
+  exit "$CODE"
+fi
+
+grep -aF 'picked starting tile' "$LOG" | tail -1
 if [[ -f "$REPORT" ]]; then
   echo "report: $REPORT"
   cat "$REPORT"

@@ -17,6 +17,9 @@ public static class QuickstartArgs {
   /// <summary>Overrides the world seed: <c>-quickstartseed=abc123</c>.</summary>
   public const string SeedArg = "quickstartseed";
 
+  /// <summary>Wall-clock limit for the run: <c>-quickstarttimeout=120</c>. Implies verify.</summary>
+  public const string TimeoutArg = "quickstarttimeout";
+
   /// <summary>Environment fallback for <see cref="SelectArg"/>, for shells that mangle game args.</summary>
   public const string SelectEnvVar = "RIMWORLD_QUICKSTART";
 
@@ -24,6 +27,7 @@ public static class QuickstartArgs {
   private static string? selectedName;
   private static string? reportPath;
   private static string? seed;
+  private static int timeoutSeconds;
   private static bool verifyMode;
 
   /// <summary>Quickstart name the run asked for, or null when none was given.</summary>
@@ -58,6 +62,14 @@ public static class QuickstartArgs {
     }
   }
 
+  /// <summary>Seconds before the run gives up, or zero when no limit was asked for.</summary>
+  public static int TimeoutSeconds {
+    get {
+      Parse();
+      return timeoutSeconds;
+    }
+  }
+
   private static void Parse() {
     if (parsed) {
       return;
@@ -79,8 +91,16 @@ public static class QuickstartArgs {
       seed = Clean(requestedSeed);
     }
 
+    if (GenCommandLine.TryGetCommandLineArg(TimeoutArg, out string limit)
+        && int.TryParse(Clean(limit), out int seconds)
+        && seconds > 0) {
+      timeoutSeconds = seconds;
+    }
+
     // A report is only ever written by a verify run, so asking for one turns verify on.
-    verifyMode = GenCommandLine.CommandLineArgPassed(VerifyArg) || !string.IsNullOrEmpty(reportPath);
+    verifyMode = GenCommandLine.CommandLineArgPassed(VerifyArg)
+        || !string.IsNullOrEmpty(reportPath)
+        || timeoutSeconds > 0;
   }
 
   private static string? Clean(string? raw) {

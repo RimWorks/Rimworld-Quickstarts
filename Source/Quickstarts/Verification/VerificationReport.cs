@@ -19,20 +19,23 @@ public static class VerificationReport {
   /// <param name="verification">Assertions that ran, or null when the quickstart had none.</param>
   /// <param name="log">What the game logged during the run.</param>
   /// <param name="passed">Overall outcome.</param>
+  /// <param name="timedOutStage">Stage the watchdog fired in, or null when the run finished.</param>
   public static void Write(
       string quickstartName,
       string seed,
       int ticksRun,
       QuickstartVerification? verification,
       LogSummary log,
-      bool passed) {
+      bool passed,
+      string? timedOutStage = null) {
     string? path = ResolvePath();
     if (path == null) {
       return;
     }
 
     try {
-      File.WriteAllText(path, Build(quickstartName, seed, ticksRun, verification, log, passed));
+      File.WriteAllText(
+          path, Build(quickstartName, seed, ticksRun, verification, log, passed, timedOutStage));
       Logger.Info("Wrote report to {Path}", new object?[] { path });
     } catch (Exception ex) {
       Logger.Error(ex, $"Failed to write report to {path}");
@@ -59,13 +62,16 @@ public static class VerificationReport {
       int ticksRun,
       QuickstartVerification? verification,
       LogSummary log,
-      bool passed) {
+      bool passed,
+      string? timedOutStage) {
     StringBuilder sb = new StringBuilder();
     sb.Append("{\n");
     sb.Append("  \"quickstart\": ").Append(JsonString(quickstartName)).Append(",\n");
     sb.Append("  \"seed\": ").Append(JsonString(seed)).Append(",\n");
     sb.Append("  \"ticksRun\": ").Append(ticksRun).Append(",\n");
     sb.Append("  \"passed\": ").Append(passed ? "true" : "false").Append(",\n");
+    sb.Append("  \"timedOut\": ").Append(timedOutStage != null ? "true" : "false").Append(",\n");
+    sb.Append("  \"stage\": ").Append(JsonString(timedOutStage)).Append(",\n");
     sb.Append("  \"logErrors\": ").Append(log.Errors.Count).Append(",\n");
     sb.Append("  \"logWarnings\": ").Append(log.Warnings).Append(",\n");
     sb.Append("  \"logTruncated\": ").Append(log.Truncated ? "true" : "false").Append(",\n");

@@ -77,6 +77,11 @@ public class Quickstarter {
 
   /// <summary>Draws the launch status box while the game is being built.</summary>
   public void OnGUI() {
+    if (Watchdog.Expired()) {
+      TimeOut();
+      return;
+    }
+
     if (Quickstart == null || finished) {
       return;
     }
@@ -143,6 +148,7 @@ public class Quickstarter {
   }
 
   private static void RunVerification(AbstractQuickstart quickstart, string seed, int ticksRun) {
+    Watchdog.Stage = "verifying";
     string name = quickstart.GetType().Name;
     QuickstartVerification? verification = quickstart.Verify();
 
@@ -221,6 +227,7 @@ public class Quickstarter {
       return 0;
     }
 
+    Watchdog.Stage = "ticking";
     TickManager ticks = Find.TickManager;
     int start = ticks.TicksGame;
 
@@ -235,6 +242,19 @@ public class Quickstarter {
     return ran;
   }
 
+  private void TimeOut() {
+    string name = Quickstart?.GetType().Name ?? "none";
+
+    // Collected first so the timeout line below does not land in its own report.
+    LogSummary log = LogCapture.Collect();
+
+    Logger.Error(
+        "'{Quickstart}' timed out after {Seconds}s during {Stage}.",
+        new object?[] { name, QuickstartArgs.TimeoutSeconds, Watchdog.Stage });
+    VerificationReport.Write(name, seedUsed, 0, null, log, false, Watchdog.Stage);
+    Exit(2);
+  }
+
   private void StartGame() {
     seedUsed = SeedResolver.Resolve(QuickstartArgs.Seed, Quickstart!.seed) ?? GenText.RandomSeedString();
     Logger.Info(
@@ -245,6 +265,7 @@ public class Quickstarter {
     // clearing the log under an interactive launch would throw away what you were reading.
     if (QuickstartArgs.VerifyMode) {
       LogCapture.Arm();
+      Watchdog.Arm(QuickstartArgs.TimeoutSeconds);
     }
 
     LongEventHandler.QueueLongEvent(
@@ -254,6 +275,7 @@ public class Quickstarter {
 
           try {
             ApplyConfiguration();
+            Watchdog.Stage = "generating-map";
             PageUtility.InitGameStart();
           } catch {
             ReleaseSeed();
@@ -274,6 +296,7 @@ public class Quickstarter {
   }
 
   private void ApplyConfiguration() {
+    Watchdog.Stage = "configuring";
     AbstractQuickstart quickstart = Quickstart!;
 
     Current.ProgramState = ProgramState.Entry;
@@ -286,6 +309,7 @@ public class Quickstarter {
 
     quickstart.PreGenerateWorld();
 
+    Watchdog.Stage = "generating-world";
     Current.Game.World = WorldGenerator.GenerateWorld(
         quickstart.planetCoverage,
         seedUsed,
