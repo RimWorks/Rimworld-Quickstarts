@@ -5,6 +5,7 @@
     <Version>1.0.0</Version>
     <Authors>RimWorks</Authors>
     <Description>Compile-time reference assembly for Quickstarts, the boot-into-a-scenario dev tool for RimWorld. Reference this to define quickstarts in your own mod; the Quickstarts mod supplies the real assembly at runtime.</Description>
+    <PackageTags>rimworld;modding;developer-tools;smoke-testing;continuous-integration;quickstart</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/RimWorks/Rimworld-Quickstarts</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
