@@ -23,6 +23,7 @@ export default {
             {
                 // Harmony/ and Concord/ hold the backends. A zip without them cannot patch.
                 prepareCmd: [
+                    'node scripts/write-stamp.mjs',
                     'dotnet build Quickstarts.slnx -c Release -p:Version=${nextRelease.version}',
                     'dotnet pack Source/Quickstarts.Ref/Quickstarts.Ref.csproj -c Release -p:Version=${nextRelease.version} -o artifacts',
                     'zip -r Quickstarts-${nextRelease.version}.zip About Assemblies Harmony Concord Languages loadFolders.xml -x "*.pdb" "About/Preview.xcf"',
