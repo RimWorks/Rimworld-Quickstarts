@@ -226,7 +226,7 @@ dotnet_diagnostic.SA1300.severity = none # element must begin uppercase — def-
 dotnet_diagnostic.SA1307.severity = none # field must begin uppercase — Scribe-backed settings fields
 dotnet_diagnostic.SA1401.severity = none # field must be private — ModSettings fields are public by contract
 
-[tests/**/*.cs]
+[tests/**.cs]
 dotnet_diagnostic.SA0001.severity = none
 dotnet_diagnostic.SA1600.severity = none
 dotnet_diagnostic.SA1601.severity = none
@@ -250,8 +250,9 @@ dotnet_diagnostic.CA1859.severity = none # use the concrete type — a perf hint
 dotnet_diagnostic.CA2208.severity = none # argument exception needs paramName — fixtures throw bare exceptions purely to shape an IL exception region
 dotnet_diagnostic.CA2219.severity = none # do not throw from finally — a throw inside finally is itself an IL shape under test
 dotnet_diagnostic.CA1861.severity = none # hoist constant array args — one-off assertion and setup arrays read better inline
+dotnet_diagnostic.S2094.severity = none # empty class — stand-in types exist only as Type handles for a lookup test
 
-[bench/**/*.cs]
+[bench/**.cs]
 dotnet_diagnostic.SA0001.severity = none
 dotnet_diagnostic.SA1600.severity = none
 dotnet_diagnostic.SA1601.severity = none
@@ -275,8 +276,9 @@ dotnet_diagnostic.CA1859.severity = none # use the concrete type — a perf hint
 dotnet_diagnostic.CA2208.severity = none # argument exception needs paramName — fixtures throw bare exceptions purely to shape an IL exception region
 dotnet_diagnostic.CA2219.severity = none # do not throw from finally — a throw inside finally is itself an IL shape under test
 dotnet_diagnostic.CA1861.severity = none # hoist constant array args — one-off assertion and setup arrays read better inline
+dotnet_diagnostic.S2094.severity = none # empty class — stand-in types exist only as Type handles for a lookup test
 
-[**/*.Tests/**/*.cs]
+[**/*.Tests/**.cs]
 dotnet_diagnostic.SA0001.severity = none
 dotnet_diagnostic.SA1600.severity = none
 dotnet_diagnostic.SA1601.severity = none
@@ -300,8 +302,9 @@ dotnet_diagnostic.CA1859.severity = none # use the concrete type — a perf hint
 dotnet_diagnostic.CA2208.severity = none # argument exception needs paramName — fixtures throw bare exceptions purely to shape an IL exception region
 dotnet_diagnostic.CA2219.severity = none # do not throw from finally — a throw inside finally is itself an IL shape under test
 dotnet_diagnostic.CA1861.severity = none # hoist constant array args — one-off assertion and setup arrays read better inline
+dotnet_diagnostic.S2094.severity = none # empty class — stand-in types exist only as Type handles for a lookup test
 
-[**/*.Test/**/*.cs]
+[**/*.Test/**.cs]
 dotnet_diagnostic.SA0001.severity = none
 dotnet_diagnostic.SA1600.severity = none
 dotnet_diagnostic.SA1601.severity = none
@@ -325,8 +328,9 @@ dotnet_diagnostic.CA1859.severity = none # use the concrete type — a perf hint
 dotnet_diagnostic.CA2208.severity = none # argument exception needs paramName — fixtures throw bare exceptions purely to shape an IL exception region
 dotnet_diagnostic.CA2219.severity = none # do not throw from finally — a throw inside finally is itself an IL shape under test
 dotnet_diagnostic.CA1861.severity = none # hoist constant array args — one-off assertion and setup arrays read better inline
+dotnet_diagnostic.S2094.severity = none # empty class — stand-in types exist only as Type handles for a lookup test
 
-[**/Tests/**/*.cs]
+[**/Tests/**.cs]
 dotnet_diagnostic.SA0001.severity = none
 dotnet_diagnostic.SA1600.severity = none
 dotnet_diagnostic.SA1601.severity = none
@@ -350,8 +354,9 @@ dotnet_diagnostic.CA1859.severity = none # use the concrete type — a perf hint
 dotnet_diagnostic.CA2208.severity = none # argument exception needs paramName — fixtures throw bare exceptions purely to shape an IL exception region
 dotnet_diagnostic.CA2219.severity = none # do not throw from finally — a throw inside finally is itself an IL shape under test
 dotnet_diagnostic.CA1861.severity = none # hoist constant array args — one-off assertion and setup arrays read better inline
+dotnet_diagnostic.S2094.severity = none # empty class — stand-in types exist only as Type handles for a lookup test
 
-[**/*.TestMod/**/*.cs]
+[**/*.TestMod/**.cs]
 dotnet_diagnostic.SA0001.severity = none
 dotnet_diagnostic.SA1600.severity = none
 dotnet_diagnostic.SA1601.severity = none
@@ -375,6 +380,7 @@ dotnet_diagnostic.CA1859.severity = none # use the concrete type — a perf hint
 dotnet_diagnostic.CA2208.severity = none # argument exception needs paramName — fixtures throw bare exceptions purely to shape an IL exception region
 dotnet_diagnostic.CA2219.severity = none # do not throw from finally — a throw inside finally is itself an IL shape under test
 dotnet_diagnostic.CA1861.severity = none # hoist constant array args — one-off assertion and setup arrays read better inline
+dotnet_diagnostic.S2094.severity = none # empty class — stand-in types exist only as Type handles for a lookup test
 
 # DefOf classes: the engine's DefOfHelper.RebindAllDefOfs reflects over PUBLIC STATIC fields and
 # matches each field's NAME to a def's TYD `name` (which carries underscores, e.g. Mod_Thing).

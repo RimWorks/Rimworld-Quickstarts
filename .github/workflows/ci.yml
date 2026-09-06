@@ -56,7 +56,7 @@ jobs:
       # template that will not convert is a broken Workshop page nobody sees until it ships.
       - name: Compile the template to BBCode
         run: |
-          npm i --no-save @steamdown/core
+          npm ci --ignore-scripts
           node --input-type=module -e '
             import { parse, render } from "@steamdown/core";
             import { readFileSync } from "node:fs";

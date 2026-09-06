@@ -157,11 +157,11 @@ public class Quickstarter {
     LogSummary log = LogCapture.Collect();
     int budgetErrors = log.CountAgainstBudget(quickstart.ignoredLogErrors);
     bool logClean = !quickstart.failOnLogError || budgetErrors <= quickstart.allowedLogErrors;
+    string? logDetail = logClean
+        ? null
+        : $"{budgetErrors} errors, budget {quickstart.allowedLogErrors}";
     AssertResult? logCheck = quickstart.failOnLogError
-        ? new AssertResult(
-            "no log errors",
-            logClean,
-            logClean ? null : $"{budgetErrors} errors, budget {quickstart.allowedLogErrors}")
+        ? new AssertResult("no log errors", logClean, logDetail)
         : null;
 
     if (log.Errors.Count > 0) {
@@ -184,6 +184,17 @@ public class Quickstarter {
     }
 
     bool passed = verification.AllPassed && logClean;
+    LogResults(verification);
+
+    Logger.Info(
+        "Verification {Outcome} for '{Quickstart}'.",
+        new object?[] { passed ? "PASSED" : "FAILED", name });
+    VerificationReport.Write(name, seed, ticksRun, verification, log, passed);
+    JUnitReport.Write(name, verification, log, logCheck, null);
+    Exit(passed ? 0 : 1);
+  }
+
+  private static void LogResults(QuickstartVerification verification) {
     for (int i = 0; i < verification.Results.Count; i++) {
       AssertResult result = verification.Results[i];
       string line = $"  {(result.Passed ? "PASS" : "FAIL")} {result.Label}";
@@ -197,13 +208,6 @@ public class Quickstarter {
         Logger.Error(line);
       }
     }
-
-    Logger.Info(
-        "Verification {Outcome} for '{Quickstart}'.",
-        new object?[] { passed ? "PASSED" : "FAILED", name });
-    VerificationReport.Write(name, seed, ticksRun, verification, log, passed);
-    JUnitReport.Write(name, verification, log, logCheck, null);
-    Exit(passed ? 0 : 1);
   }
 
   private static void Exit(int code) {
@@ -301,7 +305,7 @@ public class Quickstarter {
         true,
         GameAndMapInitExceptionHandlers.ErrorWhileGeneratingMap);
 
-    Quickstart!.PostStart();
+    Quickstart.PostStart();
   }
 
   private void ApplyConfiguration() {

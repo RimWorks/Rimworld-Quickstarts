@@ -56,6 +56,8 @@ public static class VerificationReport {
     }
   }
 
+  private static string JsonBool(bool value) => value ? "true" : "false";
+
   private static string Build(
       string quickstartName,
       string seed,
@@ -69,12 +71,12 @@ public static class VerificationReport {
     sb.Append("  \"quickstart\": ").Append(JsonString(quickstartName)).Append(",\n");
     sb.Append("  \"seed\": ").Append(JsonString(seed)).Append(",\n");
     sb.Append("  \"ticksRun\": ").Append(ticksRun).Append(",\n");
-    sb.Append("  \"passed\": ").Append(passed ? "true" : "false").Append(",\n");
-    sb.Append("  \"timedOut\": ").Append(timedOutStage != null ? "true" : "false").Append(",\n");
+    sb.Append("  \"passed\": ").Append(JsonBool(passed)).Append(",\n");
+    sb.Append("  \"timedOut\": ").Append(JsonBool(timedOutStage != null)).Append(",\n");
     sb.Append("  \"stage\": ").Append(JsonString(timedOutStage)).Append(",\n");
     sb.Append("  \"logErrors\": ").Append(log.Errors.Count).Append(",\n");
     sb.Append("  \"logWarnings\": ").Append(log.Warnings).Append(",\n");
-    sb.Append("  \"logTruncated\": ").Append(log.Truncated ? "true" : "false").Append(",\n");
+    sb.Append("  \"logTruncated\": ").Append(JsonBool(log.Truncated)).Append(",\n");
     sb.Append("  \"preLaunchErrors\": ").Append(log.PreLaunchErrors).Append(",\n");
     sb.Append("  \"total\": ").Append(verification?.Results.Count ?? 0).Append(",\n");
     sb.Append("  \"failed\": ").Append(CountFailed(verification)).Append(",\n");
@@ -126,7 +128,7 @@ public static class VerificationReport {
       AssertResult result = verification.Results[i];
       sb.Append(i == 0 ? "\n" : ",\n");
       sb.Append("    { \"label\": ").Append(JsonString(result.Label));
-      sb.Append(", \"passed\": ").Append(result.Passed ? "true" : "false");
+      sb.Append(", \"passed\": ").Append(JsonBool(result.Passed));
       sb.Append(", \"detail\": ").Append(JsonString(result.Detail));
       sb.Append(" }");
     }
