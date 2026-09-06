@@ -50,7 +50,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
 
       # semantic-release-steam compiles README.template.md to BBCode on every release, so a
       # template that will not convert is a broken Workshop page nobody sees until it ships.

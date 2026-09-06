@@ -14,8 +14,8 @@ scenarios, written in C# and launched from the dev menu or a command line flag.
 
 Vanilla's quicktest drops you on a random map with random colonists. A quickstart is the same
 colony every time, so the same scenario doubles as a smoke test. Run it with a flag and the game
-asserts against the live simulation, writes a JSON report and JUnit XML, then exits with a pass
-or fail code.
+asserts against the live simulation. It writes a JSON report and JUnit XML, then exits with a
+pass or fail code.
 
 Requires Harmony or Concord. Quickstarts prefers Concord when both are active.
 

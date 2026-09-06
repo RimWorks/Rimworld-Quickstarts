@@ -26,15 +26,15 @@ Vanilla's quicktest button drops you on a random map with random colonists and n
 
 Quickstarts gives you a picker on that button instead, listing every quickstart the loaded mods define. Pick one and you are on the map, paused, with the colony already configured.
 
-Fix the world seed and two runs give you the same planet, the same landing tile and the same colonists, so a failure replays instead of vanishing.
+Fix the world seed and two runs give you the same planet, landing tile, and colonists. A failure replays instead of vanishing.
 
 Every non-abstract subclass turns up automatically. Adding a quickstart means writing a class and nothing else.
 
-## What can I set up before the map loads?
+## What can you set up before the map loads?
 
 Hooks run at the points that matter: before generation, after the world exists, after the scenario finishes its own setup, and once the colonists spawn. Set pawn counts, finish research, hand out gear, or open the panel you are working on.
 
-## Can I use it as a smoke test in CI?
+## Can it run as a smoke test in CI?
 
 Yes, and that is the point of writing one. Run the same scenario with a verify flag and the game asserts against the live simulation, then exits with a pass or fail code. It writes both a JSON report and JUnit XML, so CI can annotate a failed assertion on the pull request. No display needed.
 
