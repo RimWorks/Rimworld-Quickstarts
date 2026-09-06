@@ -1,4 +1,4 @@
-# Quickstarts
+# Quickstarts: RimWorld dev quicktest scenarios
 
 [![Steam Workshop](https://img.shields.io/badge/Steam_Workshop-Quickstarts-1b2838?logo=steam&logoColor=white)](https://steamcommunity.com/sharedfiles/filedetails/?id=3793646067)
 [![Discord](https://img.shields.io/badge/Discord-RimWorld-5865F2?logo=discord&logoColor=white)](https://discord.gg/rimworld)
@@ -8,9 +8,14 @@
 
 <img src="https://raw.githubusercontent.com/RimWorks/Rimworld-Quickstarts/main/About/ModIcon.png" alt="Quickstarts icon" width="96" align="right">
 
-A developer tool for RimWorld. Write a boot-into-game scenario in C#, then launch it from the
-dev menu or the command line. The same scenario doubles as a smoke test. Run it with a flag and
-the game asserts, writes a JSON report, then exits with a pass or fail code.
+A developer tool for RimWorld. Skip the menus and boot straight into a colony that is already
+set up the way you need it. Quickstarts replaces the vanilla dev quicktest button with your own
+scenarios, written in C# and launched from the dev menu or a command line flag.
+
+Vanilla's quicktest drops you on a random map with random colonists. A quickstart is the same
+colony every time, so the same scenario doubles as a smoke test. Run it with a flag and the game
+asserts against the live simulation, writes a JSON report and JUnit XML, then exits with a pass
+or fail code.
 
 Requires Harmony or Concord. Quickstarts prefers Concord when both are active.
 
@@ -193,6 +198,14 @@ dotnet build Quickstarts.slnx -c Release
 
 Output lands in `Assemblies/`, `Harmony/Assemblies/` and `Concord/Assemblies/`. `loadFolders.xml`
 loads only the backend folder whose library is active, so the other one never has to resolve.
+
+## More modding tools from RimWorks
+
+| Tool | What it does |
+| --- | --- |
+| [Pickle](https://github.com/RimWorks/Rimworld-Pickle) | Run Gherkin tests against a live RimWorld session, in the game |
+| [RimLogging](https://github.com/RimWorks/rimworld-logging-framework) | Structured logging, an in-game log viewer, and one-click bug report sharing |
+| [RimObs](https://github.com/RimWorks/rimworld-observability-collector) | Performance profiler and telemetry that finds which mod is eating your TPS |
 
 ## License
 
