@@ -12,6 +12,8 @@ export default {
                     { type: 'refactor', release: 'patch' },
                     { type: 'style', release: 'patch' },
                     { type: 'ci', release: 'patch' },
+                    // README.template.md is the workshop description, so docs are shipped content.
+                    { type: 'docs', release: 'patch' },
                 ],
             },
         ],
