@@ -21,7 +21,7 @@ public class QuickstartVerificationTests {
     verification.AssertEqual("colonists", 3, () => 3);
 
     Assert.IsTrue(verification.AllPassed);
-    Assert.AreEqual(2, verification.Results.Count);
+    Assert.HasCount(2, verification.Results);
     Assert.IsNull(verification.Results[0].Detail);
   }
 

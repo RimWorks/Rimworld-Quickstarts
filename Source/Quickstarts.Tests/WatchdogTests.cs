@@ -6,6 +6,8 @@ namespace RimWorks.Quickstarts.Tests;
 
 [TestClass]
 public class WatchdogTests {
+  public TestContext TestContext { get; set; } = null!;
+
   [TestMethod]
   public void ARunWithNoDeadlineNeverExpires() {
     Watchdog.Arm(0);
@@ -25,7 +27,7 @@ public class WatchdogTests {
     Watchdog.Arm(1);
     Assert.IsFalse(Watchdog.Expired());
 
-    await Task.Delay(1100);
+    await Task.Delay(1100, TestContext.CancellationToken);
 
     Assert.IsTrue(Watchdog.Expired());
     Assert.IsFalse(Watchdog.Expired(), "the caller quits on the first true, so it must not repeat");
