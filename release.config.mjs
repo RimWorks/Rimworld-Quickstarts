@@ -1,5 +1,5 @@
 // semantic-release-steam only updates an existing item, so this id needs a manual first upload.
-const WORKSHOP_ID = process.env.QUICKSTARTS_WORKSHOP_ID ?? '';
+const WORKSHOP_ID = process.env.WORKSHOP_ID || '3793646067';
 
 /** @type {import('semantic-release').GlobalConfig} */
 export default {
