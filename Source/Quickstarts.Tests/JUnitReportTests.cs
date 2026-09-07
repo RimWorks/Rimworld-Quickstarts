@@ -16,7 +16,7 @@ public class JUnitReportTests {
     XElement suite = Suite(xml);
     Assert.AreEqual("2", suite.Attribute("tests")!.Value);
     Assert.AreEqual("0", suite.Attribute("failures")!.Value);
-    Assert.AreEqual(0, suite.Descendants("failure").Count());
+    Assert.IsEmpty(suite.Descendants("failure"));
   }
 
   [TestMethod]
@@ -84,8 +84,8 @@ public class JUnitReportTests {
     string xml = JUnitReport.Build("TinyColony", null, log, null, null);
 
     string text = Suite(xml).Element("system-err")!.Value;
-    StringAssert.Contains(text, "Tried to tick a <null> hediff");
-    StringAssert.Contains(text, "(x4)");
+    Assert.Contains("Tried to tick a <null> hediff", text);
+    Assert.Contains("(x4)", text);
   }
 
   [TestMethod]
@@ -94,7 +94,7 @@ public class JUnitReportTests {
 
     XElement suite = Suite(xml);
     Assert.AreEqual("0", suite.Attribute("tests")!.Value);
-    Assert.AreEqual(0, suite.Descendants("testcase").Count());
+    Assert.IsEmpty(suite.Descendants("testcase"));
   }
 
   private static QuickstartVerification Verification(params (string Label, bool Passed)[] asserts) {

@@ -56,7 +56,7 @@ public class LogSummaryTests {
   [TestMethod]
   public void AnEmptySummaryCountsNothing() {
     Assert.AreEqual(0, LogSummary.None.CountAgainstBudget(null));
-    Assert.AreEqual(0, LogSummary.None.Errors.Count);
+    Assert.IsEmpty(LogSummary.None.Errors);
     Assert.IsFalse(LogSummary.None.Truncated);
   }
 
