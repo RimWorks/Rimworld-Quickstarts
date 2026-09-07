@@ -67,14 +67,23 @@ public class JUnitReportTests {
 
   [TestMethod]
   public void ControlBytesAreDroppedSoTheFileStillParses() {
-    string label = "before\u0001after\u0007\ttabbed\nwrapped";
+    string label = "before\u0001after\u0007\ttabbed\r\nwrapped";
     string xml = JUnitReport.Build(
         "TinyColony", Verification((label, true)), LogSummary.None, null, null);
 
     // Parsing at all is the assertion: XML 1.0 rejects these bytes even when encoded.
     Assert.AreEqual(
-        "beforeafter\ttabbed\nwrapped",
+        "beforeafter\ttabbed\r\nwrapped",
         Suite(xml).Descendants("testcase").Single().Attribute("name")!.Value);
+  }
+
+  [TestMethod]
+  public void AFailureWithNoDetailStillWritesTheElement() {
+    AssertResult logCheck = new AssertResult("no log errors", false, null);
+    string xml = JUnitReport.Build("TinyColony", null, LogSummary.None, logCheck, null);
+
+    XElement failure = Suite(xml).Descendants("failure").Single();
+    Assert.AreEqual(string.Empty, failure.Attribute("message")!.Value);
   }
 
   [TestMethod]

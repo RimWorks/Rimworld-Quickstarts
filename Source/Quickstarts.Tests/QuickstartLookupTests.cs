@@ -51,9 +51,9 @@ public class QuickstartLookupTests {
     Type? resolved = QuickstartLookup.Resolve("PreCatacendreQuickstart", Candidates, out string? error);
 
     Assert.IsNull(resolved);
-    Assert.Contains("matches several quickstarts", error);
-    Assert.Contains(typeof(Roshar.PreCatacendreQuickstart).FullName, error);
-    Assert.Contains(typeof(Scadrial.PreCatacendreQuickstart).FullName, error);
+    Assert.Contains("matches several quickstarts", error!);
+    Assert.Contains(typeof(Roshar.PreCatacendreQuickstart).FullName!, error!);
+    Assert.Contains(typeof(Scadrial.PreCatacendreQuickstart).FullName!, error!);
   }
 
   [TestMethod]
@@ -61,8 +61,8 @@ public class QuickstartLookupTests {
     Type? resolved = QuickstartLookup.Resolve("NotAQuickstart", Candidates, out string? error);
 
     Assert.IsNull(resolved);
-    Assert.Contains("no quickstart is called 'NotAQuickstart'", error);
-    Assert.Contains(typeof(Roshar.WindrunnerQuickstart).FullName, error);
+    Assert.Contains("no quickstart is called 'NotAQuickstart'", error!);
+    Assert.Contains(typeof(Roshar.WindrunnerQuickstart).FullName!, error!);
   }
 
   [TestMethod]
@@ -70,8 +70,8 @@ public class QuickstartLookupTests {
     Assert.IsNull(QuickstartLookup.Resolve(null, Candidates, out string? nullError));
     Assert.IsNull(QuickstartLookup.Resolve("   ", Candidates, out string? blankError));
 
-    Assert.Contains("no quickstart name", nullError);
-    Assert.Contains("no quickstart name", blankError);
+    Assert.Contains("no quickstart name", nullError!);
+    Assert.Contains("no quickstart name", blankError!);
   }
 
   [TestMethod]
