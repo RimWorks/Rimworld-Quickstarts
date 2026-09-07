@@ -1,11 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!-- net472 is what the game loads. net10.0 exists so coverlet has a modern assembly to
+         instrument, and never ships. -->
+    <TargetFrameworks>net472;net10.0</TargetFrameworks>
+    <TargetFramework></TargetFramework>
     <AssemblyName>Quickstarts</AssemblyName>
     <RootNamespace>RimWorks.Quickstarts</RootNamespace>
-    <OutDir>$(MSBuildProjectDirectory)\..\..\Assemblies\</OutDir>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+
+    <!-- The game reads Assemblies/, so only the shipped build lands there. -->
+    <OutDir Condition="'$(TargetFramework)' == 'net472'">$(MSBuildProjectDirectory)\..\..\Assemblies\</OutDir>
+    <AppendTargetFrameworkToOutputPath Condition="'$(TargetFramework)' == 'net472'">false</AppendTargetFrameworkToOutputPath>
+
+    <!-- The game packages are net472. The rest fire because net10.0 has APIs and nullability
+         annotations net472 lacks, so the shipped build cannot take the suggestion. -->
+    <NoWarn Condition="'$(TargetFramework)' != 'net472'">$(NoWarn);NU1701;NU1702;S8969;CS8600;CA2249</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*" ExcludeAssets="runtime" PrivateAssets="all" />
