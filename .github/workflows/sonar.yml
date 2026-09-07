@@ -19,54 +19,11 @@ jobs:
           # Sonar needs full history to blame lines and scope new code.
           fetch-depth: 0
 
-      - name: Setup JDK
-        uses: actions/setup-java@v6
-        with:
-          java-version: 17
-          distribution: zulu
-
-      # The mod builds net10.0 alongside net472, so this job needs the same SDK as ci.yml.
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Cache Sonar packages
-        uses: actions/cache@v6
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: Cache Sonar scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v6
-        with:
-          path: ${{ runner.temp }}/scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-
-      - name: Install Sonar scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        run: dotnet tool update dotnet-sonarscanner --tool-path ${{ runner.temp }}/scanner
-
       # Coverage skips anything importing Verse, RimWorld or UnityEngine: those need a running game.
-      - name: Build and analyze
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          ${{ runner.temp }}/scanner/dotnet-sonarscanner begin \
-            /k:"RimWorks_Rimworld-Quickstarts" \
-            /o:"rimworks" \
-            /d:sonar.token="$SONAR_TOKEN" \
-            /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.exclusions="Styles/**,artifacts/**,**/bin/**,**/obj/**" \
-            /d:sonar.coverage.exclusions="Source/Quickstarts/Builtin/**,Source/Quickstarts/Dev/**,Source/Quickstarts/UI/**,Source/Quickstarts/Patching/PatchBackends.cs,Source/Quickstarts/Patching/QuickstartHooks.cs,Source/Quickstarts/Verification/LogCapture.cs,Source/Quickstarts/Verification/VerificationReport.cs,Source/Quickstarts/AbstractQuickstart.cs,Source/Quickstarts/DelayedActionScheduler.cs,Source/Quickstarts/Logger.cs,Source/Quickstarts/QuickstartArgs.cs,Source/Quickstarts/QuickstartCharacterSetupRegistry.cs,Source/Quickstarts/QuickstartRegistry.cs,Source/Quickstarts/Quickstarter.cs,Source/Quickstarts/QuickstartsMod.cs,Source/Quickstarts/QuickstartsSettings.cs,Source/Quickstarts/VanillaQuicktest.cs,Source/Quickstarts.Patches.*/**" \
-            /d:sonar.cs.opencover.reportsPaths="artifacts/coverage/**/coverage.opencover.xml"
-          dotnet build Quickstarts.slnx -c Release
-          # MSTEST and CA rules ship at info severity, which dotnet build never prints.
-          dotnet format analyzers Quickstarts.slnx --severity info --verify-no-changes --no-restore
-          dotnet test Quickstarts.slnx -c Release --no-build \
-            --collect:"XPlat Code Coverage;Format=opencover" \
-            --results-directory artifacts/coverage
-          ${{ runner.temp }}/scanner/dotnet-sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+      - uses: RimWorks/mod-ci/.github/actions/dotnet-sonar@2a4af7891b92cd20917a0dd9f726532314a602a1 # v1.2.0
+        with:
+          solution: Quickstarts.slnx
+          project-key: RimWorks_Rimworld-Quickstarts
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          exclusions: Styles/**,artifacts/**,**/bin/**,**/obj/**
+          coverage-exclusions: Source/Quickstarts/Builtin/**,Source/Quickstarts/Dev/**,Source/Quickstarts/UI/**,Source/Quickstarts/Patching/PatchBackends.cs,Source/Quickstarts/Patching/QuickstartHooks.cs,Source/Quickstarts/Verification/LogCapture.cs,Source/Quickstarts/Verification/VerificationReport.cs,Source/Quickstarts/AbstractQuickstart.cs,Source/Quickstarts/DelayedActionScheduler.cs,Source/Quickstarts/Logger.cs,Source/Quickstarts/QuickstartArgs.cs,Source/Quickstarts/QuickstartCharacterSetupRegistry.cs,Source/Quickstarts/QuickstartRegistry.cs,Source/Quickstarts/Quickstarter.cs,Source/Quickstarts/QuickstartsMod.cs,Source/Quickstarts/QuickstartsSettings.cs,Source/Quickstarts/VanillaQuicktest.cs,Source/Quickstarts.Patches.*/**
