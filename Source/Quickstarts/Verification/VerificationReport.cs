@@ -61,6 +61,7 @@ public static class VerificationReport {
     sb.Append("  \"logErrors\": ").Append(log.Errors.Count).Append(",\n");
     sb.Append("  \"logWarnings\": ").Append(log.Warnings).Append(",\n");
     sb.Append("  \"logTruncated\": ").Append(JsonBool(log.Truncated)).Append(",\n");
+    sb.Append("  \"captureLive\": ").Append(JsonBool(log.CaptureLive)).Append(",\n");
     sb.Append("  \"preLaunchErrors\": ").Append(log.PreLaunchErrors).Append(",\n");
     sb.Append("  \"total\": ").Append(verification?.Results.Count ?? 0).Append(",\n");
     sb.Append("  \"failed\": ").Append(CountFailed(verification)).Append(",\n");

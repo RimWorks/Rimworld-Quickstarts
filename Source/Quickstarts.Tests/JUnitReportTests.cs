@@ -89,7 +89,8 @@ public class JUnitReportTests {
   [TestMethod]
   public void CapturedErrorsLandInSystemErr() {
     LogSummary log = new LogSummary(
-        [new CapturedError("Tried to tick a <null> hediff", 4, null)], 0, false, 0);
+        [new CapturedError("Tried to tick a <null> hediff", 4, null)], 0, false, 0,
+        captureLive: true);
     string xml = JUnitReport.Build("TinyColony", null, log, null, null);
 
     string text = Suite(xml).Element("system-err")!.Value;

@@ -156,13 +156,12 @@ public class Quickstarter {
     // otherwise count themselves.
     LogSummary log = LogCapture.Collect();
     int budgetErrors = log.CountAgainstBudget(quickstart.ignoredLogErrors);
-    bool logClean = !quickstart.failOnLogError || budgetErrors <= quickstart.allowedLogErrors;
-    string? logDetail = logClean
-        ? null
-        : $"{budgetErrors} errors, budget {quickstart.allowedLogErrors}";
+    bool logClean = !quickstart.failOnLogError
+        || (log.CaptureLive && budgetErrors <= quickstart.allowedLogErrors);
+    string? logDetail = logClean ? null : DescribeLogFailure(log, budgetErrors, quickstart.allowedLogErrors);
     AssertResult? logCheck = quickstart.failOnLogError
         ? new AssertResult("no log errors", logClean, logDetail)
-        : null;
+        : BlindNotice(log);
 
     if (log.Errors.Count > 0) {
       Logger.Warn(
@@ -192,6 +191,20 @@ public class Quickstarter {
     VerificationReport.Write(name, seed, ticksRun, verification, log, passed);
     JUnitReport.Write(name, verification, log, logCheck, null);
     Exit(passed ? 0 : 1);
+  }
+
+  // A blind capture is not a clean run, so it reads as its own failure rather than zero errors.
+  private static string DescribeLogFailure(LogSummary log, int budgetErrors, int allowed) {
+    return log.CaptureLive
+        ? $"{budgetErrors} errors, budget {allowed}"
+        : "log capture was blind, so a clean run cannot be proven";
+  }
+
+  // Opting out of the log check does not hide that the log was unreadable, so CI still sees it.
+  private static AssertResult? BlindNotice(LogSummary log) {
+    return log.CaptureLive
+        ? null
+        : new AssertResult("log capture live", true, "blind; log errors were not checked");
   }
 
   private static void LogResults(QuickstartVerification verification) {

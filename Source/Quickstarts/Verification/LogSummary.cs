@@ -16,21 +16,30 @@ public readonly struct LogSummary {
   /// <summary>Red errors already present before launch, from mod and def loading.</summary>
   public readonly int PreLaunchErrors;
 
+  /// <summary>Whether the capture could see Verse.Log at all. False means a clean run is unproven.</summary>
+  public readonly bool CaptureLive;
+
   /// <summary>Records one run's log.</summary>
   /// <param name="errors">Red errors logged after launch.</param>
   /// <param name="warnings">Warnings logged after launch.</param>
   /// <param name="truncated">Whether the queue dropped older lines.</param>
   /// <param name="preLaunchErrors">Red errors from before launch.</param>
+  /// <param name="captureLive">Whether the capture could see Verse.Log.</param>
   public LogSummary(
-      IReadOnlyList<CapturedError> errors, int warnings, bool truncated, int preLaunchErrors) {
+      IReadOnlyList<CapturedError> errors,
+      int warnings,
+      bool truncated,
+      int preLaunchErrors,
+      bool captureLive) {
     Errors = errors;
     Warnings = warnings;
     Truncated = truncated;
     PreLaunchErrors = preLaunchErrors;
+    CaptureLive = captureLive;
   }
 
   /// <summary>An empty log, for runs that never armed the capture.</summary>
-  public static LogSummary None => new LogSummary([], 0, false, 0);
+  public static LogSummary None => new LogSummary([], 0, false, 0, captureLive: false);
 
   /// <summary>Counts the errors a quickstart has not asked to ignore.</summary>
   /// <param name="ignored">Substrings the quickstart tolerates.</param>

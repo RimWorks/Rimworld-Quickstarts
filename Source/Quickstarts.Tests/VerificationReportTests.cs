@@ -41,7 +41,7 @@ public class VerificationReportTests {
     QuickstartVerification verification = new QuickstartVerification();
     verification.Assert(nasty, () => false);
 
-    LogSummary log = new LogSummary([new CapturedError(nasty, 3, nasty)], 2, true, 1);
+    LogSummary log = new LogSummary([new CapturedError(nasty, 3, nasty)], 2, true, 1, true);
     string json = VerificationReport.Build(nasty, nasty, 1, verification, log, false, nasty);
 
     JsonElement root = Parse(json);
@@ -54,6 +54,16 @@ public class VerificationReportTests {
   }
 
   [TestMethod]
+  public void BlindCaptureIsReportedRatherThanHidden() {
+    string blind = VerificationReport.Build("Basic", "s", 5, null, LogSummary.None, false, null);
+    Assert.IsFalse(Parse(blind).GetProperty("captureLive").GetBoolean());
+
+    LogSummary live = new LogSummary([], 0, false, 0, captureLive: true);
+    string seen = VerificationReport.Build("Basic", "s", 5, null, live, true, null);
+    Assert.IsTrue(Parse(seen).GetProperty("captureLive").GetBoolean());
+  }
+
+  [TestMethod]
   public void CountsMatchTheResultsAndErrorsWritten() {
     QuickstartVerification verification = new QuickstartVerification();
     verification.Assert("passes", () => true);
@@ -61,7 +71,8 @@ public class VerificationReportTests {
     verification.Assert("also fails", () => false);
 
     LogSummary log = new LogSummary(
-        [new CapturedError("boom", 1, null), new CapturedError("bang", 5, "at Foo()")], 7, true, 4);
+        [new CapturedError("boom", 1, null), new CapturedError("bang", 5, "at Foo()")], 7, true, 4,
+        captureLive: true);
     string json = VerificationReport.Build("Basic", "s", 12, verification, log, false, null);
 
     JsonElement root = Parse(json);

@@ -14,7 +14,7 @@ public class LogSummaryTests {
 
   [TestMethod]
   public void CountsEveryErrorWhenNothingIsIgnored() {
-    LogSummary log = new LogSummary([NullRef, Missing], 0, false, 0);
+    LogSummary log = new LogSummary([NullRef, Missing], 0, false, 0, captureLive: true);
 
     Assert.AreEqual(2, log.CountAgainstBudget(null));
     Assert.AreEqual(2, log.CountAgainstBudget([]));
@@ -22,7 +22,7 @@ public class LogSummaryTests {
 
   [TestMethod]
   public void SkipsErrorsMatchingAnIgnorePattern() {
-    LogSummary log = new LogSummary([NullRef, Missing], 0, false, 0);
+    LogSummary log = new LogSummary([NullRef, Missing], 0, false, 0, captureLive: true);
 
     Assert.AreEqual(1, log.CountAgainstBudget(["null hediff"]));
     Assert.AreEqual(0, log.CountAgainstBudget(["null hediff", "cross-reference"]));
@@ -48,7 +48,7 @@ public class LogSummaryTests {
   [TestMethod]
   public void CountsDistinctMessagesNotRepeats() {
     // NullRef repeated four times is still one error against the budget.
-    LogSummary log = new LogSummary([NullRef], 0, false, 0);
+    LogSummary log = new LogSummary([NullRef], 0, false, 0, captureLive: true);
 
     Assert.AreEqual(1, log.CountAgainstBudget(null));
   }
@@ -63,11 +63,19 @@ public class LogSummaryTests {
   [TestMethod]
   public void KeepsTheFieldsItWasGiven() {
     List<CapturedError> errors = [NullRef];
-    LogSummary log = new LogSummary(errors, 12, true, 3);
+    LogSummary log = new LogSummary(errors, 12, true, 3, captureLive: true);
 
     Assert.AreEqual(12, log.Warnings);
     Assert.IsTrue(log.Truncated);
     Assert.AreEqual(3, log.PreLaunchErrors);
     Assert.AreEqual(4, log.Errors[0].Repeats);
+  }
+
+  // A summary nothing armed must not read as a clean run.
+  [TestMethod]
+  public void NoneIsBlindAndExplicitSummariesAreNot() {
+    Assert.IsFalse(LogSummary.None.CaptureLive);
+    Assert.IsTrue(new LogSummary([], 0, false, 0, captureLive: true).CaptureLive);
+    Assert.IsFalse(new LogSummary([], 0, false, 0, captureLive: false).CaptureLive);
   }
 }
