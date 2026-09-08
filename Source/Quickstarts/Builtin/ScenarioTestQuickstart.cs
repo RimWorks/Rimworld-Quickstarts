@@ -34,7 +34,7 @@ public class ScenarioTestQuickstart : AbstractQuickstart {
 
       Logger.Warn(
           "ScenarioTestQuickstart: ScenarioDef '{DefName}' not found, falling back to Crashlanded.",
-          new object?[] { defName });
+          [defName]);
       return ScenarioDefOf.Crashlanded;
     }
   }

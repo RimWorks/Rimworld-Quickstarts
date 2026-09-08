@@ -36,7 +36,7 @@ public static class VerificationReport {
     try {
       File.WriteAllText(
           path, Build(quickstartName, seed, ticksRun, verification, log, passed, timedOutStage));
-      Logger.Info("Wrote report to {Path}", new object?[] { path });
+      Logger.Info("Wrote report to {Path}", [path]);
     } catch (Exception ex) {
       Logger.Error(ex, $"Failed to write report to {path}");
     }

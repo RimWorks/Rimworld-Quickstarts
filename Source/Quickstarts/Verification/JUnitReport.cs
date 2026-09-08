@@ -30,7 +30,7 @@ public static class JUnitReport {
     try {
       File.WriteAllText(
           path!, Build(quickstartName, verification, log, logCheck, timedOutStage));
-      Logger.Info("Wrote JUnit report to {Path}", new object?[] { path });
+      Logger.Info("Wrote JUnit report to {Path}", [path]);
     } catch (Exception ex) {
       Logger.Error(ex, $"Failed to write JUnit report to {path}");
     }

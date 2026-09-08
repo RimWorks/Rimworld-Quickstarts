@@ -96,7 +96,7 @@ public class Quickstarter {
       if (requested != null) {
         Logger.Warn(
             "-{Arg} was passed, but dev mode is off, so no quickstart will run.",
-            new object?[] { QuickstartArgs.SelectArg });
+            [QuickstartArgs.SelectArg]);
       }
 
       return null;
@@ -111,11 +111,11 @@ public class Quickstarter {
   private static Type? FromName(string requested) {
     Type? type = QuickstartLookup.Resolve(requested, QuickstartRegistry.AllTypes, out string? error);
     if (type == null) {
-      Logger.Error("-{Arg}: {Reason}", new object?[] { QuickstartArgs.SelectArg, error });
+      Logger.Error("-{Arg}: {Reason}", [QuickstartArgs.SelectArg, error]);
       return null;
     }
 
-    Logger.Info("Command line picked the {Quickstart} quickstart.", new object?[] { type.Name });
+    Logger.Info("Command line picked the {Quickstart} quickstart.", [type.Name]);
     return type;
   }
 
@@ -127,7 +127,7 @@ public class Quickstarter {
 
     Type? type = QuickstartLookup.Resolve(name, QuickstartRegistry.AllTypes, out string? error);
     if (type == null) {
-      Logger.Error("Default quickstart in mod settings: {Reason}", new object?[] { error });
+      Logger.Error("Default quickstart in mod settings: {Reason}", [error]);
     }
 
     return type;
@@ -168,15 +168,15 @@ public class Quickstarter {
       Logger.Warn(
           "The game logged {Errors} errors during the run ({Counted} against a budget of"
           + " {Budget}), plus {Warnings} warnings.",
-          new object?[] {
+          [
             log.Errors.Count, budgetErrors, quickstart.allowedLogErrors, log.Warnings,
-          });
+          ]);
     }
 
     if (verification == null) {
       Logger.Info(
           "Verify mode requested but '{Quickstart}' has no Verify().",
-          new object?[] { name });
+          [name]);
       VerificationReport.Write(name, seed, ticksRun, null, log, logClean);
       JUnitReport.Write(name, null, log, logCheck, null);
       Exit(logClean ? 0 : 1);
@@ -188,7 +188,7 @@ public class Quickstarter {
 
     Logger.Info(
         "Verification {Outcome} for '{Quickstart}'.",
-        new object?[] { passed ? "PASSED" : "FAILED", name });
+        [passed ? "PASSED" : "FAILED", name]);
     VerificationReport.Write(name, seed, ticksRun, verification, log, passed);
     JUnitReport.Write(name, verification, log, logCheck, null);
     Exit(passed ? 0 : 1);
@@ -211,7 +211,7 @@ public class Quickstarter {
   }
 
   private static void Exit(int code) {
-    Logger.Info("Exiting with code {Code}.", new object?[] { code });
+    Logger.Info("Exiting with code {Code}.", [code]);
 
     // Application.Quit, not Environment.Exit: an AppDomain unload from a Unity callback hangs.
     Application.Quit(code);
@@ -250,7 +250,7 @@ public class Quickstarter {
 
     // Counted, not assumed: DebugSettings.fastEcology advances 2000 ticks per call.
     int ran = ticks.TicksGame - start;
-    Logger.Info("Ran {Ticks} ticks before verifying.", new object?[] { ran });
+    Logger.Info("Ran {Ticks} ticks before verifying.", [ran]);
     return ran;
   }
 
@@ -262,7 +262,7 @@ public class Quickstarter {
 
     Logger.Error(
         "'{Quickstart}' timed out after {Seconds}s during {Stage}.",
-        new object?[] { name, QuickstartArgs.TimeoutSeconds, Watchdog.Stage });
+        [name, QuickstartArgs.TimeoutSeconds, Watchdog.Stage]);
     VerificationReport.Write(name, seedUsed, 0, null, log, false, Watchdog.Stage);
     JUnitReport.Write(name, null, log, null, Watchdog.Stage);
     Exit(2);
@@ -272,7 +272,7 @@ public class Quickstarter {
     seedUsed = SeedResolver.Resolve(QuickstartArgs.Seed, Quickstart!.seed) ?? GenText.RandomSeedString();
     Logger.Info(
         "Launching '{Quickstart}' with world seed {Seed}.",
-        new object?[] { Quickstart.GetType().Name, seedUsed });
+        [Quickstart.GetType().Name, seedUsed]);
 
     // Armed before generation so load-time errors stay out of the run's count. Verify mode only:
     // clearing the log under an interactive launch would throw away what you were reading.
@@ -336,7 +336,7 @@ public class Quickstarter {
 
     Logger.Info(
         "Seed {Seed} picked starting tile {Tile}.",
-        new object?[] { seedUsed, Find.GameInitData.startingTile });
+        [seedUsed, Find.GameInitData.startingTile]);
 
     Find.GameInitData.mapSize = quickstart.mapSize;
     quickstart.PostApplyConfiguration();
@@ -354,19 +354,17 @@ public class Quickstarter {
     AbstractQuickstart quickstart = Quickstart!;
 
     try {
-      List<Pawn> pawns = Find.World.PlayerPawnsForStoryteller
-          .Where(p => p is { Spawned: true, Map: not null, story: not null, needs: not null })
-          .ToList();
+      List<Pawn> pawns = [.. Find.World.PlayerPawnsForStoryteller.Where(p => p is { Spawned: true, Map: not null, story: not null, needs: not null })];
 
       // An empty list means PrepareColonists silently does nothing and the run still looks fine.
       if (pawns.Count == 0) {
         Logger.Warn(
             "No colonists passed the readiness filter. World has {WorldPawns} player pawns;"
             + " map has {SpawnedColonists} spawned colonists.",
-            new object?[] {
+            [
               Find.World.PlayerPawnsForStoryteller.Count(),
               Find.CurrentMap?.mapPawns?.FreeColonistsSpawnedCount ?? -1,
-            });
+            ]);
       }
 
       // Counted before the handoff: a quickstart may drain the list, so Count reads zero after.
@@ -381,7 +379,7 @@ public class Quickstarter {
 
       Logger.Info(
           "Loaded '{Quickstart}' with {Colonists} colonists: {Names}.",
-          new object?[] { quickstart.GetType().Name, count, names });
+          [quickstart.GetType().Name, count, names]);
     } catch (Exception ex) {
       Logger.Error(ex, "Post-load setup failed");
     }

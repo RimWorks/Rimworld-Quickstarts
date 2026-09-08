@@ -47,7 +47,7 @@ public static class QuickstartRegistry {
       if (type.GetConstructor(Type.EmptyTypes) == null) {
         Logger.Warn(
             "Skipping quickstart {Quickstart}: it has no parameterless constructor.",
-            new object?[] { type.FullName });
+            [type.FullName]);
         continue;
       }
 

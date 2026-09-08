@@ -27,27 +27,28 @@ public static class QuickstartArgs {
   public const string SelectEnvVar = "RIMWORLD_QUICKSTART";
 
   private static bool parsed;
-  private static string? selectedName;
   private static string? reportPath;
-  private static string? seed;
   private static string? junitPath;
   private static int timeoutSeconds;
-  private static bool verifyMode;
 
   /// <summary>Quickstart name the run asked for, or null when none was given.</summary>
   public static string? SelectedName {
     get {
       Parse();
-      return selectedName;
+      return field;
     }
+
+    private set;
   }
 
   /// <summary>Whether the run should assert and exit instead of staying in the game.</summary>
   public static bool VerifyMode {
     get {
       Parse();
-      return verifyMode;
+      return field;
     }
+
+    private set;
   }
 
   /// <summary>Explicit report path, or null to use the default under the save data folder.</summary>
@@ -62,8 +63,10 @@ public static class QuickstartArgs {
   public static string? Seed {
     get {
       Parse();
-      return seed;
+      return field;
     }
+
+    private set;
   }
 
   /// <summary>Seconds before the run gives up, or zero when no limit was asked for.</summary>
@@ -90,9 +93,9 @@ public static class QuickstartArgs {
     parsed = true;
 
     if (GenCommandLine.TryGetCommandLineArg(SelectArg, out string value)) {
-      selectedName = Clean(value);
+      SelectedName = Clean(value);
     } else {
-      selectedName = Clean(SafeEnv(SelectEnvVar));
+      SelectedName = Clean(SafeEnv(SelectEnvVar));
     }
 
     if (GenCommandLine.TryGetCommandLineArg(ReportArg, out string path)) {
@@ -100,7 +103,7 @@ public static class QuickstartArgs {
     }
 
     if (GenCommandLine.TryGetCommandLineArg(SeedArg, out string requestedSeed)) {
-      seed = Clean(requestedSeed);
+      Seed = Clean(requestedSeed);
     }
 
     if (GenCommandLine.TryGetCommandLineArg(TimeoutArg, out string limit)
@@ -114,7 +117,7 @@ public static class QuickstartArgs {
     }
 
     // A report is only ever written by a verify run, so asking for one turns verify on.
-    verifyMode = GenCommandLine.CommandLineArgPassed(VerifyArg)
+    VerifyMode = GenCommandLine.CommandLineArgPassed(VerifyArg)
         || !string.IsNullOrEmpty(reportPath)
         || !string.IsNullOrEmpty(junitPath)
         || timeoutSeconds > 0;

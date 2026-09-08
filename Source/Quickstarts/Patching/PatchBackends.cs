@@ -63,7 +63,7 @@ public static class PatchBackends {
       Ready = true;
       Logger.Info(
           "Patched via {Backend} (priority {Priority}).",
-          new object?[] { registration.Backend.Name, registration.Priority });
+          [registration.Backend.Name, registration.Priority]);
       return;
     }
 
