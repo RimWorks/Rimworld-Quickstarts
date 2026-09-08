@@ -17,8 +17,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  ci:
+    name: ci
+    uses: ./.github/workflows/ci.yml
+    # A called workflow cannot hold more than its caller, and the repo default is read.
+    permissions:
+      contents: read
+      checks: write
+      packages: write
+    secrets: inherit
+
+  sonar:
+    name: sonar
+    uses: ./.github/workflows/sonar.yml
+    permissions:
+      contents: read
+    secrets: inherit
+
   release:
     name: semantic-release
+    needs: [ci, sonar]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -47,7 +65,7 @@ jobs:
         with:
           user: aequasi
 
-      - uses: RimWorks/mod-ci/.github/actions/steam-login@79a54854b2795cf5cc12025b3d86ede3b354af94
+      - uses: RimWorks/mod-ci/.github/actions/steam-login@79a54854b2795cf5cc12025b3d86ede3b354af94 # v1.3.0
         with:
           steam-config-vdf-b64: ${{ secrets.STEAM_CONFIG_VDF_B64 }}
 

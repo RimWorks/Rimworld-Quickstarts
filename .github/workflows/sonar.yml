@@ -1,29 +1,27 @@
 name: sonar
 
 on:
-  push:
-    branches: [main]
+  workflow_call:
   pull_request:
     types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
 
+concurrency:
+  group: sonar-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   analyze:
-    name: build and analyze
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Sonar needs full history to blame lines and scope new code.
-          fetch-depth: 0
-
+    name: analyze
+    uses: RimWorks/mod-ci/.github/workflows/sonar.yml@dbb33c36ad8165dd9ffbe567c07055cbfb0b5c21 # v1.4.0
+    permissions:
+      contents: read
+    with:
+      solution: Quickstarts.slnx
+      project-key: RimWorks_Rimworld-Quickstarts
+      exclusions: Styles/**,artifacts/**,**/bin/**,**/obj/**
       # Coverage skips anything importing Verse, RimWorld or UnityEngine: those need a running game.
-      - uses: RimWorks/mod-ci/.github/actions/dotnet-sonar@5698991b43ade4de809d49d9695ac88e0895b298 # v1.2.1
-        with:
-          solution: Quickstarts.slnx
-          project-key: RimWorks_Rimworld-Quickstarts
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          exclusions: Styles/**,artifacts/**,**/bin/**,**/obj/**
-          coverage-exclusions: Source/Quickstarts/Builtin/**,Source/Quickstarts/Dev/**,Source/Quickstarts/UI/**,Source/Quickstarts/Patching/PatchBackends.cs,Source/Quickstarts/Patching/QuickstartHooks.cs,Source/Quickstarts/Verification/LogCapture.cs,Source/Quickstarts/Verification/VerificationReport.cs,Source/Quickstarts/AbstractQuickstart.cs,Source/Quickstarts/DelayedActionScheduler.cs,Source/Quickstarts/Logger.cs,Source/Quickstarts/QuickstartArgs.cs,Source/Quickstarts/QuickstartCharacterSetupRegistry.cs,Source/Quickstarts/QuickstartRegistry.cs,Source/Quickstarts/Quickstarter.cs,Source/Quickstarts/QuickstartsMod.cs,Source/Quickstarts/QuickstartsSettings.cs,Source/Quickstarts/VanillaQuicktest.cs,Source/Quickstarts.Patches.*/**
+      coverage-exclusions: Source/Quickstarts/Builtin/**,Source/Quickstarts/Dev/**,Source/Quickstarts/UI/**,Source/Quickstarts/Patching/PatchBackends.cs,Source/Quickstarts/Patching/QuickstartHooks.cs,Source/Quickstarts/Verification/LogCapture.cs,Source/Quickstarts/Verification/VerificationReport.cs,Source/Quickstarts/AbstractQuickstart.cs,Source/Quickstarts/DelayedActionScheduler.cs,Source/Quickstarts/Logger.cs,Source/Quickstarts/QuickstartArgs.cs,Source/Quickstarts/QuickstartCharacterSetupRegistry.cs,Source/Quickstarts/QuickstartRegistry.cs,Source/Quickstarts/Quickstarter.cs,Source/Quickstarts/QuickstartsMod.cs,Source/Quickstarts/QuickstartsSettings.cs,Source/Quickstarts/VanillaQuicktest.cs,Source/Quickstarts.Patches.*/**
+    secrets: inherit

@@ -1,44 +1,33 @@
 name: ci
 
 on:
-  push:
-    branches: [main]
+  workflow_call:
   pull_request:
     branches: [main]
   workflow_dispatch:
 
+# least privilege default; jobs elevate only what they individually need
+permissions:
+  contents: read
+
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   prose:
     name: prose
-    runs-on: ubuntu-latest
+    uses: RimWorks/mod-ci/.github/workflows/prose.yml@dbb33c36ad8165dd9ffbe567c07055cbfb0b5c21 # v1.4.0
     permissions:
       contents: read
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Vale
-        uses: errata-ai/vale-action@518a9136acc6e6668ce7c00d367051e0941e87ff # reviewdog
-        with:
-          reporter: github-pr-check
-          fail_on_error: true
 
   links:
     name: links
-    runs-on: ubuntu-latest
+    uses: RimWorks/mod-ci/.github/workflows/links.yml@dbb33c36ad8165dd9ffbe567c07055cbfb0b5c21 # v1.4.0
     permissions:
       contents: read
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Check links
-        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
-        with:
-          args: --config lychee.toml --no-progress README.md README.template.md
-          fail: true
+    with:
+      args: --config lychee.toml --no-progress README.md README.template.md
 
   workshop-description:
     name: workshop description
