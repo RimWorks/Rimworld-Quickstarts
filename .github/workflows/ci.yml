@@ -2,6 +2,11 @@ name: ci
 
 on:
   workflow_call:
+    secrets:
+      STEAM_USERNAME:
+        required: false
+      STEAM_CONFIG_VDF_B64:
+        required: false
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -101,7 +106,9 @@ jobs:
     permissions:
       contents: read
       packages: write
-    secrets: inherit
+    secrets:
+      STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+      STEAM_CONFIG_VDF_B64: ${{ secrets.STEAM_CONFIG_VDF_B64 }}
 
   quickstart:
     name: quickstart (${{ matrix.backend }})

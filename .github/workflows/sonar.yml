@@ -2,6 +2,9 @@ name: sonar
 
 on:
   workflow_call:
+    secrets:
+      SONAR_TOKEN:
+        required: true
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -24,4 +27,5 @@ jobs:
       exclusions: Styles/**,artifacts/**,**/bin/**,**/obj/**
       # Coverage skips anything importing Verse, RimWorld or UnityEngine: those need a running game.
       coverage-exclusions: Source/Quickstarts/Builtin/**,Source/Quickstarts/Dev/**,Source/Quickstarts/UI/**,Source/Quickstarts/Patching/PatchBackends.cs,Source/Quickstarts/Patching/QuickstartHooks.cs,Source/Quickstarts/Verification/LogCapture.cs,Source/Quickstarts/Verification/VerificationReport.cs,Source/Quickstarts/AbstractQuickstart.cs,Source/Quickstarts/DelayedActionScheduler.cs,Source/Quickstarts/Logger.cs,Source/Quickstarts/QuickstartArgs.cs,Source/Quickstarts/QuickstartCharacterSetupRegistry.cs,Source/Quickstarts/QuickstartRegistry.cs,Source/Quickstarts/Quickstarter.cs,Source/Quickstarts/QuickstartsMod.cs,Source/Quickstarts/QuickstartsSettings.cs,Source/Quickstarts/VanillaQuicktest.cs,Source/Quickstarts.Patches.*/**
-    secrets: inherit
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
