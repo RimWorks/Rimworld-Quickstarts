@@ -69,10 +69,12 @@ public static class LogCapture {
     return new LogSummary(errors, warnings, total >= SinkCapacity, preLaunchErrors, captureLive);
   }
 
-  // Another copy of RimLogging claims the hijack first and leaves this one deaf, and a min level
-  // above Error drops the entries the gate reads before any sink sees them.
+  // Three ways to go deaf: another copy owns the hijack, nothing patched Verse.Log at all, or a
+  // min level above Error drops the entries the gate reads before any sink sees them.
   private static bool CanSeeErrors() {
-    return Logging.IsPrimary && Logging.GlobalMinLevel <= LogLevel.Error;
+    return Logging.IsPrimary
+        && Logging.CaptureBackend != null
+        && Logging.GlobalMinLevel <= LogLevel.Error;
   }
 
   // Boot errors land before the sink exists, so this still counts Verse's buffer. Only the
