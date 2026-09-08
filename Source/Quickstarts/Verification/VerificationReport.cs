@@ -6,8 +6,8 @@ using Verse;
 namespace RimWorks.Quickstarts.Verification;
 
 /// <summary>
-/// Writes the CI report. JSON is hand-built rather than serialized: RimWorld ships no JSON
-/// writer, and the shape is four fields.
+/// Writes the CI report. JSON is hand-built, not serialized; VerificationReportTests covers
+/// the escaper against quotes, control characters and unicode.
 /// </summary>
 public static class VerificationReport {
   private const string DefaultFileName = "Quickstarts_report.json";
@@ -42,23 +42,7 @@ public static class VerificationReport {
     }
   }
 
-  private static string? ResolvePath() {
-    string? requested = QuickstartArgs.ReportPath;
-    if (!string.IsNullOrEmpty(requested)) {
-      return requested;
-    }
-
-    try {
-      return Path.Combine(GenFilePaths.SaveDataFolderPath, DefaultFileName);
-    } catch (Exception ex) {
-      Logger.Error(ex, "Could not resolve a default report path");
-      return null;
-    }
-  }
-
-  private static string JsonBool(bool value) => value ? "true" : "false";
-
-  private static string Build(
+  internal static string Build(
       string quickstartName,
       string seed,
       int ticksRun,
@@ -88,6 +72,22 @@ public static class VerificationReport {
     sb.Append("]\n}\n");
     return sb.ToString();
   }
+
+  private static string? ResolvePath() {
+    string? requested = QuickstartArgs.ReportPath;
+    if (!string.IsNullOrEmpty(requested)) {
+      return requested;
+    }
+
+    try {
+      return Path.Combine(GenFilePaths.SaveDataFolderPath, DefaultFileName);
+    } catch (Exception ex) {
+      Logger.Error(ex, "Could not resolve a default report path");
+      return null;
+    }
+  }
+
+  private static string JsonBool(bool value) => value ? "true" : "false";
 
   private static void AppendErrors(StringBuilder sb, LogSummary log) {
     for (int i = 0; i < log.Errors.Count; i++) {
