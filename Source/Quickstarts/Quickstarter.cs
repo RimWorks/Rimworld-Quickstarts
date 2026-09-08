@@ -157,7 +157,7 @@ public class Quickstarter {
     LogSummary log = LogCapture.Collect();
     int budgetErrors = log.CountAgainstBudget(quickstart.ignoredLogErrors);
     bool logClean = !quickstart.failOnLogError
-        || (log.CaptureLive && budgetErrors <= quickstart.allowedLogErrors);
+        || (log.CaptureLive && !log.Truncated && budgetErrors <= quickstart.allowedLogErrors);
     string? logDetail = logClean ? null : DescribeLogFailure(log, budgetErrors, quickstart.allowedLogErrors);
     AssertResult? logCheck = quickstart.failOnLogError
         ? new AssertResult("no log errors", logClean, logDetail)
@@ -193,18 +193,28 @@ public class Quickstarter {
     Exit(passed ? 0 : 1);
   }
 
-  // A blind capture is not a clean run, so it reads as its own failure rather than zero errors.
+  // Reading part of the log is not reading it, so both gaps fail on their own terms.
   private static string DescribeLogFailure(LogSummary log, int budgetErrors, int allowed) {
-    return log.CaptureLive
-        ? $"{budgetErrors} errors, budget {allowed}"
-        : "log capture was blind, so a clean run cannot be proven";
+    if (!log.CaptureLive) {
+      return "log capture was blind, so a clean run cannot be proven";
+    }
+
+    if (log.Truncated) {
+      return "the log ring overflowed, so dropped errors cannot be ruled out";
+    }
+
+    return $"{budgetErrors} errors, budget {allowed}";
   }
 
   // Opting out of the log check does not hide that the log was unreadable, so CI still sees it.
   private static AssertResult? BlindNotice(LogSummary log) {
-    return log.CaptureLive
-        ? null
-        : new AssertResult("log capture live", true, "blind; log errors were not checked");
+    if (log.CaptureLive && !log.Truncated) {
+      return null;
+    }
+
+    string why = log.CaptureLive ? "the log ring overflowed" : "capture was blind";
+    return new AssertResult(
+        "log capture complete", true, $"{why}; log errors were not checked");
   }
 
   private static void LogResults(QuickstartVerification verification) {

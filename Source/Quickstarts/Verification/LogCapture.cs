@@ -11,8 +11,8 @@ namespace RimWorks.Quickstarts.Verification;
 /// that cannot read the log says so, because no errors and no way to see them are not the same.
 /// </summary>
 public static class LogCapture {
-  // Ring capacity. Past this the oldest entry is dropped and the count is a floor.
-  private const int SinkCapacity = 1000;
+  // Ring capacity. A run that overflows it fails, because the dropped entries could be errors.
+  private const int SinkCapacity = 10000;
 
   private static MemoryLogSink? sink;
   private static int preLaunchErrors;
