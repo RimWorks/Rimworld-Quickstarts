@@ -1,5 +1,7 @@
 <Project>
   <PropertyGroup>
+    <!-- On, so an undocumented public member fails the build instead of only dotnet format. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TargetFramework>net472</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
