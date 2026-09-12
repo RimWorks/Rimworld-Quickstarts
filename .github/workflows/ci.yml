@@ -162,29 +162,24 @@ jobs:
           docker pull -q "$GAME_IMAGE"
           echo "pulled in $((SECONDS - start))s"
 
-          # The container writes its reports as root, so the runner has to read them back.
+          # The host and the container do not agree on user ids, so the runner has to be
+          # able to read the reports back.
           mkdir -p "$PWD/quickstart-out"
           chmod 777 "$PWD/quickstart-out"
 
-          # The base runs as uid 1000, which cannot write the mount parents docker makes,
-          # so this forces root; HOME then keeps Unity's config out of /root.
-          CFG="/qs-home/.config/unity3d/Ludeon Studios/RimWorld by Ludeon Studios/Config"
+          CFG="/home/app/.config/unity3d/Ludeon Studios/RimWorld by Ludeon Studios/Config"
 
-          # --init is load bearing: xvfb-run waits for Xvfb to signal SIGUSR1 to its parent,
-          # which never arrives when xvfb-run is itself PID 1.
           status=0
-          docker run --rm --init --name quickstart-run --user 0 \
-            -e HOME=/qs-home \
+          docker run --rm --name quickstart-run \
             -v "$RUNNER_TEMP/mods:/game/Mods:ro" \
             -v "$RUNNER_TEMP/config:$CFG" \
             -v "$PWD/quickstart-out:/out" \
             "$GAME_IMAGE" \
-            xvfb-run -a -s '-screen 0 1920x1080x24' \
-              /game/RimWorldLinux -quickstart=ScenarioTestQuickstart \
-                -quickstartreport=/out/report.json \
-                -quickstartjunit=/out/junit.xml \
-                -quickstarttimeout=420 \
-                -logfile /out/Player.log || status=$?
+            run-headless /game/RimWorldLinux -quickstart=ScenarioTestQuickstart \
+              -quickstartreport=/out/report.json \
+              -quickstartjunit=/out/junit.xml \
+              -quickstarttimeout=420 \
+              -logfile /out/Player.log || status=$?
 
           echo "quickstart exited with $status"
           [[ -f quickstart-out/report.json ]] && cat quickstart-out/report.json
