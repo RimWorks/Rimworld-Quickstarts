@@ -11,7 +11,6 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# least privilege default; jobs elevate only what they individually need
 permissions:
   contents: read
 
@@ -22,13 +21,13 @@ concurrency:
 jobs:
   prose:
     name: prose
-    uses: RimWorks/mod-ci/.github/workflows/prose.yml@eae5a8f32bee86128ae88bf8821ebaca65ddc1e9 # v1.4.1
+    uses: RimWorks/mod-ci/.github/workflows/prose.yml@d6261858b6b74c0cd3ca03c6402c954d58ac7fee # v1.5.1
     permissions:
       contents: read
 
   links:
     name: links
-    uses: RimWorks/mod-ci/.github/workflows/links.yml@eae5a8f32bee86128ae88bf8821ebaca65ddc1e9 # v1.4.1
+    uses: RimWorks/mod-ci/.github/workflows/links.yml@d6261858b6b74c0cd3ca03c6402c954d58ac7fee # v1.5.1
     permissions:
       contents: read
     with:
@@ -40,14 +39,12 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 22
 
-      # semantic-release-steam compiles README.template.md to BBCode on every release, so a
-      # template that will not convert is a broken Workshop page nobody sees until it ships.
       - name: Compile the template to BBCode
         run: |
           npm ci --ignore-scripts
@@ -69,10 +66,10 @@ jobs:
       contents: read
       checks: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v6
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: 10.0.x
 
@@ -84,8 +81,6 @@ jobs:
           dotnet test Quickstarts.slnx -c Release --no-build \
             --logger "trx;LogFileName=tests.trx" --results-directory "$RUNNER_TEMP/test-results"
 
-      # if: always() so a failing test still gets annotated. Without it the reporter is
-      # skipped by the very failure it exists to point at.
       - name: Publish the test results
         if: always()
         uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
@@ -95,14 +90,12 @@ jobs:
           reporter: dotnet-trx
           fail-on-error: false
 
-      # last, so a formatting nit never hides a real test failure
       - name: dotnet format
         run: dotnet format Quickstarts.slnx --verify-no-changes
 
   game-image:
     name: rimworld 1.6 image
     uses: ./.github/workflows/game-image.yml
-    # A called workflow cannot hold more than its caller, and the repo default is read.
     permissions:
       contents: read
       packages: write
@@ -122,14 +115,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Both backends, because PatchBackends picks between them and only one gets
-        # exercised otherwise.
         backend: [harmony, concord]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v6
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: 10.0.x
 
@@ -143,8 +134,6 @@ jobs:
           .github/scripts/stage-quickstart-mods.sh \
             "${{ matrix.backend }}" "$RUNNER_TEMP/mods" "$RUNNER_TEMP/config"
 
-          # The repo root is the mod folder once it is built. Source and the git history
-          # are not part of what ships, so they stay out of the container.
           mkdir -p "$RUNNER_TEMP/mods/Quickstarts"
           tar -c --exclude=.git --exclude=node_modules --exclude=Source --exclude=artifacts . \
             | tar -x -C "$RUNNER_TEMP/mods/Quickstarts"
@@ -156,14 +145,11 @@ jobs:
         run: |
           echo "$GHCR_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-          # The image is the whole game, so this is minutes of silence without a marker.
           echo "pulling $GAME_IMAGE ..."
           start=$SECONDS
           docker pull -q "$GAME_IMAGE"
           echo "pulled in $((SECONDS - start))s"
 
-          # The host and the container do not agree on user ids, so the runner has to be
-          # able to read the reports back.
           mkdir -p "$PWD/quickstart-out"
           chmod 777 "$PWD/quickstart-out"
 
@@ -196,7 +182,7 @@ jobs:
 
       - name: Upload the run
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: quickstart-${{ matrix.backend }}
           path: quickstart-out/

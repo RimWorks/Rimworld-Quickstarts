@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# Stages Harmony or Concord plus RimLogging and a ModsConfig for one Quickstarts CI run.
 #   stage-quickstart-mods.sh <harmony|concord> <mods-dir> <config-dir>
-# Everything comes from public GitHub releases, so no Steam credentials are needed here.
 set -euo pipefail
 
 BACKEND="${1:?usage: stage-quickstart-mods.sh <harmony|concord> <mods-dir> <config-dir>}"
@@ -14,8 +12,6 @@ RIMLOGGING_REPO="${RIMLOGGING_REPO:-RimWorks/rimworld-logging-framework}"
 
 mkdir -p "$MODS_DIR" "$CONFIG_DIR"
 
-# Anonymous API calls allow 60 an hour per IP, which a shared runner address can exhaust.
-# A redirect must stay on https, so a downgraded hop cannot swap what we download.
 https_only=(--proto '=https' --proto-redir '=https')
 
 gh_api() {
@@ -30,10 +26,8 @@ gh_api() {
   fi
 }
 
-# A release zip is either the mod folder itself or one directory holding it, and both
-# shapes are common. About/About.xml identifies the mod root either way.
 stage_release_zip() {
-  local repo="$1" prefix="$2" dest="$3" tmp json url inner
+  local repo="$1" prefix="$2" dest="$3" tmp json url inner bad
   tmp="$(mktemp -d)"
 
   json="$(gh_api "https://api.github.com/repos/${repo}/releases/latest")" || {
@@ -54,6 +48,13 @@ print(match[0]["browser_download_url"])')" || {
   }
 
   curl -sSfL "${https_only[@]}" "$url" -o "$tmp/mod.zip"
+
+  bad="$(unzip -Z1 "$tmp/mod.zip" | grep -E '(^|/)\.\./|^/' || true)"
+  if [[ -n "$bad" ]]; then
+    echo "error: the ${repo} zip contains a path traversal or absolute entry, refusing to extract" >&2
+    exit 1
+  fi
+
   unzip -qo "$tmp/mod.zip" -d "$tmp/x"
 
   inner="$(dirname "$(dirname "$(find "$tmp/x" -mindepth 2 -maxdepth 3 -path '*/About/About.xml' -print -quit)")")"
@@ -69,7 +70,6 @@ print(match[0]["browser_download_url"])')" || {
 
 ACTIVE=""
 
-# Concord declares loadBefore Ludeon.RimWorld, so it goes ahead of the base game.
 if [[ "$BACKEND" == "concord" ]]; then
   stage_release_zip "$CONCORD_REPO" "Concord-" "$MODS_DIR/Concord"
   ACTIVE="${ACTIVE}concordlib.concord
@@ -80,7 +80,6 @@ else
 "
 fi
 
-# Quickstarts declares RimLogging in modDependencies, so nothing loads without it.
 stage_release_zip "$RIMLOGGING_REPO" "RimLogging-" "$MODS_DIR/RimLogging"
 
 ACTIVE="${ACTIVE}ludeon.rimworld
@@ -109,7 +108,6 @@ $(printf '    <li>%s</li>\n' $ACTIVE)
 </ModsConfigData>
 EOF
 
-# devMode True is required: a quickstart refuses to run without it.
 cat > "$CONFIG_DIR/Prefs.xml" <<'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <PrefsData>
@@ -125,7 +123,6 @@ cat > "$CONFIG_DIR/Prefs.xml" <<'EOF'
 </PrefsData>
 EOF
 
-# the game runs as uid 1000 and rewrites ModsConfig.xml, but the runner owns these
 chmod -R 777 "$CONFIG_DIR"
 
 echo "staged '$BACKEND':"

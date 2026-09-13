@@ -1,8 +1,5 @@
 name: game image
 
-# Builds the runnable RimWorld image the quickstart job runs against. Separate from ci so a
-# rebuild can be triggered on its own and the image cannot change as a side effect.
-
 on:
   workflow_call:
     inputs:
@@ -10,7 +7,6 @@ on:
         description: Rebuild even when the Steam buildid has not moved.
         type: boolean
         default: false
-    # Not required: a dispatch without them just skips the Steam login and uses the cached image.
     secrets:
       STEAM_USERNAME:
         required: false
@@ -26,6 +22,9 @@ on:
         description: Rebuild even when the Steam buildid has not moved.
         type: boolean
         default: false
+
+permissions:
+  contents: read
 
 jobs:
   image:
@@ -46,9 +45,6 @@ jobs:
           steam-config-vdf: ${{ secrets.STEAM_CONFIG_VDF_B64 }}
           app-id: '294100'
           branch: 'version-1.6.4633'
-          # No include-paths, so the whole game lands on the action's xvfb runtime base and
-          # RimWorld can actually be launched from it.
           image: ghcr.io/${{ github.repository_owner }}/rimworld-game-runnable
           registry-password: ${{ secrets.GITHUB_TOKEN }}
           skip-if-unchanged: ${{ inputs.force && 'false' || 'true' }}
-
