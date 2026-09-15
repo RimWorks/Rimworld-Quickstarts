@@ -19,9 +19,14 @@ package.json
 package-lock.json
 release.config.mjs
 Quickstarts.slnx
-LICENSE
 
 *.md
 *.pdb
 *.xcf
 *.zip
+dist
+artifacts
+nupkgs
+Styles
+.vale.ini
+lychee.toml

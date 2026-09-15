@@ -21,12 +21,11 @@ export default {
         [
             '@semantic-release/exec',
             {
-                // Harmony/ and Concord/ hold the backends. A zip without them cannot patch.
                 prepareCmd: [
                     'node scripts/write-stamp.mjs',
                     'dotnet build Quickstarts.slnx -c Release -p:Version=${nextRelease.version}',
                     'dotnet pack Source/Quickstarts.Ref/Quickstarts.Ref.csproj -c Release -p:Version=${nextRelease.version} -o artifacts',
-                    'zip -r Quickstarts-${nextRelease.version}.zip About Assemblies Harmony Concord Languages loadFolders.xml -x "*.pdb" "About/Preview.xcf"',
+                    'npx package-mod Quickstarts ${nextRelease.version}',
                 ].join(' && '),
 
                 // NUGET_API_KEY comes from trusted publishing. Absent means a local dry run.
@@ -56,7 +55,7 @@ export default {
             '@semantic-release/github',
             {
                 assets: [
-                    { path: 'Quickstarts-*.zip', label: 'Quickstarts mod' },
+                    { path: 'dist/Quickstarts-*.zip', label: 'Quickstarts mod' },
                     { path: 'artifacts/RimWorks.Quickstarts.Ref.*.nupkg', label: 'Reference package' },
                 ],
             },
