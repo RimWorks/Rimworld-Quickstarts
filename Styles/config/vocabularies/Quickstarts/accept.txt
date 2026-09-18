@@ -24,3 +24,7 @@ ScenarioDef
 dev
 devs
 profiler
+vibecode
+Vibecoding
+MSTest
+unpatched
