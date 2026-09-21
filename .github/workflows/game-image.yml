@@ -39,7 +39,7 @@ jobs:
     steps:
       - name: Build RimWorld 1.6 game image
         id: image
-        uses: RimWorks/steam-game-image-action@187e9b65e5495b62bba77b45830e648ffae20169 # v2.0.0
+        uses: RimWorks/steam-game-image-action@f6316d9d291716189556d296918aabb03e6ebcb5 # v3.0.1
         with:
           steam-username: ${{ secrets.STEAM_USERNAME }}
           steam-config-vdf: ${{ secrets.STEAM_CONFIG_VDF_B64 }}
