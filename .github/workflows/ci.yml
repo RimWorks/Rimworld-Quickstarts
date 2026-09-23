@@ -21,13 +21,13 @@ concurrency:
 jobs:
   prose:
     name: prose
-    uses: RimWorks/mod-ci/.github/workflows/prose.yml@v1.10
+    uses: RimWorks/mod-ci/.github/workflows/prose.yml@v1
     permissions:
       contents: read
 
   links:
     name: links
-    uses: RimWorks/mod-ci/.github/workflows/links.yml@v1.10
+    uses: RimWorks/mod-ci/.github/workflows/links.yml@v1
     permissions:
       contents: read
     with:
@@ -39,9 +39,9 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
 
@@ -61,44 +61,22 @@ jobs:
 
   build:
     name: build
-    runs-on: ubuntu-latest
+    uses: RimWorks/mod-ci/.github/workflows/dotnet-build.yml@v1
     permissions:
       contents: read
       checks: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Build
-        run: dotnet build Quickstarts.slnx -c Release
-
-      - name: Run tests
-        run: |
-          dotnet test Quickstarts.slnx -c Release --no-build \
-            --logger "trx;LogFileName=tests.trx" --results-directory "$RUNNER_TEMP/test-results"
-
-      - name: Publish the test results
-        if: always()
-        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
-        with:
-          name: unit tests
-          path: ${{ runner.temp }}/test-results/*.trx
-          reporter: dotnet-trx
-          fail-on-error: false
-
-      - name: dotnet format
-        run: dotnet format Quickstarts.slnx --verify-no-changes
+    with:
+      solution: Quickstarts.slnx
 
   game-image:
     name: rimworld 1.6 image
-    uses: ./.github/workflows/game-image.yml
+    uses: RimWorks/mod-ci/.github/workflows/game-image.yml@v1
     permissions:
       contents: read
       packages: write
+    with:
+      branch: version-1.6.4633
+      image: ghcr.io/${{ github.repository_owner }}/rimworld-game-runnable
     secrets:
       STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
       STEAM_CONFIG_VDF_B64: ${{ secrets.STEAM_CONFIG_VDF_B64 }}
@@ -117,10 +95,10 @@ jobs:
       matrix:
         backend: [harmony, concord]
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
 
@@ -173,7 +151,7 @@ jobs:
 
       - name: Publish the quickstart results
         if: always()
-        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
+        uses: dorny/test-reporter@v3
         with:
           name: quickstart (${{ matrix.backend }})
           path: quickstart-out/junit.xml
@@ -182,7 +160,7 @@ jobs:
 
       - name: Upload the run
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v7
         with:
           name: quickstart-${{ matrix.backend }}
           path: quickstart-out/
