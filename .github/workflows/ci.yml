@@ -64,6 +64,8 @@ jobs:
     uses: RimWorks/mod-ci/.github/workflows/dotnet-build.yml@v1
     permissions:
       contents: read
+      # mod-ci's dotnet-build declares it: the restore pulls packages from ghcr
+      packages: read
       checks: write
     with:
       solution: Quickstarts.slnx

@@ -10,6 +10,8 @@ on:
 
 permissions:
   contents: read
+  # mod-ci's sonar.yml declares it: the scan restores packages from ghcr
+  packages: read
 
 concurrency:
   group: sonar-${{ github.ref }}
@@ -21,6 +23,7 @@ jobs:
     uses: RimWorks/mod-ci/.github/workflows/sonar.yml@v1
     permissions:
       contents: read
+      packages: read
     with:
       solution: Quickstarts.slnx
       project-key: RimWorks_Rimworld-Quickstarts
