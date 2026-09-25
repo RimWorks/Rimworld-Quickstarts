@@ -105,16 +105,15 @@ jobs:
       - name: Build the mod
         run: dotnet build Quickstarts.slnx -c Release
 
-      - name: Stage mods and config
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          .github/scripts/stage-quickstart-mods.sh \
-            "${{ matrix.backend }}" "$RUNNER_TEMP/mods" "$RUNNER_TEMP/config"
-
-          mkdir -p "$RUNNER_TEMP/mods/Quickstarts"
-          tar -c --exclude=.git --exclude=node_modules --exclude=Source --exclude=artifacts . \
-            | tar -x -C "$RUNNER_TEMP/mods/Quickstarts"
+      # pickle-version none: this job runs a quickstart smoke test, not a pickle suite
+      - uses: RimWorks/mod-ci/.github/actions/stage-mods@v1
+        with:
+          backends: ${{ matrix.backend }}
+          mods-dir: ${{ runner.temp }}/mods
+          config-dir: ${{ runner.temp }}/config
+          mod-name: Quickstarts
+          mod-package-id: rimworks.quickstarts
+          pickle-version: none
 
       - name: Run the quickstart
         env:
