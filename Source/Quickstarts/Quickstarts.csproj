@@ -18,9 +18,15 @@
     <NoWarn Condition="'$(TargetFramework)' != 'net472'">$(NoWarn);NU1701;NU1702;S8969;CS8600;CA2249</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*" ExcludeAssets="runtime" PrivateAssets="all" />
+    <Reference Include="$(GamecrateRefs)/*.dll" Condition="'$(HasGameRefs)' == 'true'"
+               Exclude="$(GamecrateRefs)/System.*.dll;$(GamecrateRefs)/System.dll;$(GamecrateRefs)/Microsoft.*.dll;$(GamecrateRefs)/mscorlib.dll;$(GamecrateRefs)/netstandard.dll;$(GamecrateRefs)/WindowsBase.dll">
+      <Private>False</Private>
+    </Reference>
     <!-- Compile-only: the RimLogging mod ships the dll, so a bundled copy would load twice. -->
     <PackageReference Include="RimWorks.RimLogging" Version="2.*" ExcludeAssets="runtime" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(HasGameRefs)' == 'false'">
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Quickstarts.Tests" />
