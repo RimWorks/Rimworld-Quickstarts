@@ -10,14 +10,27 @@
     <Authors>RimWorks</Authors>
   </PropertyGroup>
 
+  <!-- Inlined from mod-ci's msbuild/GameVersion.props, not imported from node_modules: five CI
+       legs compile without npm ci, so a compile-time input cannot wait on a release tool. -->
   <PropertyGroup>
+    <GameVersion Condition="'$(GameVersion)' == ''">1.6</GameVersion>
+
     <GamecrateCache Condition="'$(GamecrateCache)' == '' And '$(XDG_CACHE_HOME)' != ''">$(XDG_CACHE_HOME)</GamecrateCache>
     <GamecrateCache Condition="'$(GamecrateCache)' == ''">$([System.IO.Path]::Combine($([System.Environment]::GetFolderPath(SpecialFolder.UserProfile)), '.cache'))</GamecrateCache>
-    <GameRefsVersion Condition="'$(GameRefsVersion)' == ''">1.6</GameRefsVersion>
-    <GamecrateRefs Condition="'$(GamecrateRefs)' == ''">$([System.IO.Path]::Combine($(GamecrateCache), 'gamecrate', 'refs', 'version', 'rimworld', '$(GameRefsVersion)'))</GamecrateRefs>
+    <!-- CI stages the assemblies itself, so its path wins over the local gamecrate cache. -->
+    <GamecrateRefs Condition="'$(GamecrateRefs)' == '' And '$(GameManagedDir)' != ''">$(GameManagedDir)</GamecrateRefs>
+    <GamecrateRefs Condition="'$(GamecrateRefs)' == ''">$([System.IO.Path]::Combine($(GamecrateCache), 'gamecrate', 'refs', 'version', 'rimworld', $(GameVersion)))</GamecrateRefs>
+
     <HasGameRefs>false</HasGameRefs>
     <HasGameRefs Condition="Exists('$(GamecrateRefs)/Assembly-CSharp.dll')">true</HasGameRefs>
+
+    <DefineConstants>$(DefineConstants);RW_$(GameVersion.Replace('.','_'))</DefineConstants>
   </PropertyGroup>
+
+  <!-- refs/current moves on every extraction, so only the versioned path is ever named -->
+  <Target Name="RequireGameRefs" BeforeTargets="ResolveAssemblyReferences" Condition="'$(HasGameRefs)' != 'true'">
+    <Error Text="no rimworld $(GameVersion) assemblies at $(GamecrateRefs). run: gamecrate steam build rimworld --beta version-$(GameVersion)" />
+  </Target>
 
   <ItemGroup>
     <PackageReference Include="SonarAnalyzer.CSharp" Version="10.34.*" PrivateAssets="all" />

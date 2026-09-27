@@ -32,14 +32,22 @@ Most work lands in `Source/Quickstarts/`. See `README.md` for the scenario API.
 - `Source/Quickstarts.Ref/` - compile-time reference assembly published for mod authors
 - `Source/Quickstarts.Tests/` - MSTest suite
 - `About/`, `Languages/`, `Styles/` - RimWorld mod content
-- `Assemblies/` - build output the game loads
+- `1.5/`, `1.6/` - build output the game loads, one folder per version in `loadFolders.xml`
 
 ## Setup and build
 
 ```bash
-dotnet restore Quickstarts.slnx
-dotnet build Quickstarts.slnx -c Release   # StyleCop and Sonar analyzers run here
+gamecrate steam build rimworld --beta public       # 1.6 assemblies to compile against
+gamecrate steam build rimworld --beta version-1.5  # and 1.5
+dotnet build Quickstarts.slnx -c Release -p:GameVersion=1.6   # StyleCop and Sonar analyzers run here
+scripts/build-versions.sh                          # every version loadFolders.xml declares
 ```
+
+There is no reference package fallback. Without staged game assemblies the build stops and names
+the gamecrate command to run.
+
+A build needs no `npm install`. `node_modules` holds semantic-release and mod-ci, which only run
+during a release; the msbuild properties live in `Source/Directory.Build.props`.
 
 Analyzers run inside the build, so a warning is a failure in practice - CI builds
 `-c Release` and Sonar gates on it. CI also runs Vale over prose and lychee over links in

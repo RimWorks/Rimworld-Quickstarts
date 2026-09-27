@@ -1,64 +1,19 @@
+import { readFileSync } from 'node:fs';
+
+import { declaredVersions, releaseConfig } from '@rimworks/mod-ci';
+
 // semantic-release-steam only updates an existing item, so this id needs a manual first upload.
 const WORKSHOP_ID = process.env.WORKSHOP_ID || '3793646067';
 
 /** @type {import('semantic-release').GlobalConfig} */
-export default {
-    branches: ['main'],
-    plugins: [
-        [
-            '@semantic-release/commit-analyzer',
-            {
-                releaseRules: [
-                    { type: 'refactor', release: 'patch' },
-                    { type: 'style', release: 'patch' },
-                    { type: 'ci', release: 'patch' },
-                    // README.template.md is the workshop description, so docs are shipped content.
-                    { type: 'docs', release: 'patch' },
-                ],
-            },
-        ],
-        '@semantic-release/release-notes-generator',
-        [
-            '@semantic-release/exec',
-            {
-                prepareCmd: [
-                    'node scripts/write-stamp.mjs',
-                    'dotnet build Quickstarts.slnx -c Release -p:Version=${nextRelease.version}',
-                    'dotnet pack Source/Quickstarts.Ref/Quickstarts.Ref.csproj -c Release -p:Version=${nextRelease.version} -o artifacts',
-                    'npx package-mod Quickstarts ${nextRelease.version}',
-                ].join(' && '),
-
-                // NUGET_API_KEY comes from trusted publishing. Absent means a local dry run.
-                publishCmd:
-                    'if [ -n "$NUGET_API_KEY" ]; then dotnet nuget push "artifacts/RimWorks.Quickstarts.Ref.${nextRelease.version}.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate; else echo "no NUGET_API_KEY, skipping nuget push"; fi',
-            },
-        ],
-        ...(WORKSHOP_ID
-            ? [
-                  [
-                      'semantic-release-steam',
-                      {
-                          appId: '294100',
-                          branchTargets: { main: 'stable' },
-                          mods: [
-                              {
-                                  name: 'Quickstarts',
-                                  path: '.',
-                                  workshopIds: { stable: WORKSHOP_ID },
-                              },
-                          ],
-                      },
-                  ],
-              ]
-            : []),
-        [
-            '@semantic-release/github',
-            {
-                assets: [
-                    { path: 'dist/Quickstarts-*.zip', label: 'Quickstarts mod' },
-                    { path: 'artifacts/RimWorks.Quickstarts.Ref.*.nupkg', label: 'Reference package' },
-                ],
-            },
-        ],
+export default releaseConfig({
+    solution: 'Quickstarts.slnx',
+    versions: declaredVersions(readFileSync('loadFolders.xml', 'utf8')),
+    mods: [{ name: 'Quickstarts', workshopId: WORKSHOP_ID }],
+    pack: 'Source/Quickstarts.Ref/Quickstarts.Ref.csproj',
+    nupkgGlob: 'artifacts/RimWorks.Quickstarts.Ref.${nextRelease.version}.nupkg',
+    assets: [
+        { path: 'dist/Quickstarts-*.zip', label: 'Quickstarts mod' },
+        { path: 'artifacts/RimWorks.Quickstarts.Ref.*.nupkg', label: 'Reference package' },
     ],
-};
+});

@@ -6,6 +6,13 @@
 .gitignore
 .steamignore
 
+# local tooling, never mod content
+.claude/
+.gitnexus/
+.mcp.json
+.gamecrate.yml
+game.log
+
 Source/
 scripts/
 artifacts/

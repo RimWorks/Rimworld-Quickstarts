@@ -193,11 +193,18 @@ JUnit.
 ## Build
 
 ```bash
-dotnet build Quickstarts.slnx -c Release
+gamecrate steam build rimworld --beta public         # 1.6 assemblies to compile against
+gamecrate steam build rimworld --beta version-1.5    # and 1.5
+dotnet build Quickstarts.slnx -c Release -p:GameVersion=1.6
+scripts/build-versions.sh                            # or every version loadFolders.xml declares
 ```
 
-Output lands in `Assemblies/`, `Harmony/Assemblies/` and `Concord/Assemblies/`. `loadFolders.xml`
-loads only the backend folder whose library is active, so the other one never has to resolve.
+A build needs no `npm install`. `node_modules` holds the release tooling, and the msbuild
+properties live in `Source/Directory.Build.props`.
+
+Output lands in `1.6/Assemblies/`, `1.6/Harmony/Assemblies/` and `1.6/Concord/Assemblies/`, one
+folder per game version. `loadFolders.xml` loads only the backend folder whose library is active,
+so the other one never has to resolve.
 
 ## More modding tools from RimWorks
 

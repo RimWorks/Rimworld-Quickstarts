@@ -5,6 +5,7 @@
   <author>RimWorks</author>
   <url>https://github.com/RimWorks/Rimworld-Quickstarts</url>
   <supportedVersions>
+    <li>1.5</li>
     <li>1.6</li>
   </supportedVersions>
   <description>Dev quicktest scenarios. Skip the menus and boot straight into a colony that is already set up the way you need it. Quickstarts replaces the vanilla dev quicktest button with your own scenarios, written in C# and launched from the dev menu or a command line flag.

@@ -2,9 +2,7 @@ bin/
 obj/
 .idea/
 .vs/
-Assemblies/
-Harmony/Assemblies/
-Concord/Assemblies/
+**/Assemblies/
 node_modules/
 artifacts/
 *.user

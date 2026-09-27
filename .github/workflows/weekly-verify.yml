@@ -13,9 +13,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  images:
+    name: rimworld 1.6 image
+    uses: RimWorks/mod-ci/.github/workflows/game-image.yml@v1
+    permissions:
+      contents: read
+      packages: write
+    with:
+      branches: |
+        1.5=version-1.5
+        1.6=version-1.6.4633
+      image: ghcr.io/${{ github.repository_owner }}/rimworld-game-runnable
+    secrets: inherit
+
   verify:
     name: verify against current RimWorld, then republish
+    needs: images
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # stage-game-refs pulls the images the jobs above pushed
+      packages: read
     steps:
       - uses: actions/checkout@v7
         with:
@@ -34,18 +52,27 @@ jobs:
       - name: Install release dependencies
         run: npm ci --ignore-scripts
 
-      - name: dotnet restore
-        run: dotnet restore Quickstarts.slnx
+      - uses: RimWorks/mod-ci/.github/actions/stage-game-refs@v1
+        with:
+          image: ${{ fromJSON(needs.images.outputs.image-refs)['1.5'] }}
+          dest: ${{ runner.temp }}/game/1.5
+
+      - uses: RimWorks/mod-ci/.github/actions/stage-game-refs@v1
+        id: refs-16
+        with:
+          image: ${{ fromJSON(needs.images.outputs.image-refs)['1.6'] }}
+          dest: ${{ runner.temp }}/game/1.6
 
       - name: Record resolved RimWorld version
         run: |
-          version=$(dotnet list Quickstarts.slnx package \
-            | awk '/Krafs.Rimworld.Ref/ {print $NF; exit}')
-          echo "RIMWORLD_REF=${version:-unknown}" >> "$GITHUB_ENV"
-          echo "resolved RimWorld ref: ${version:-unknown}"
+          version=$(cat "${{ steps.refs-16.outputs.managed-dir }}/Version.txt")
+          echo "RIMWORLD_REF=$version" >> "$GITHUB_ENV"
+          echo "resolved RimWorld ref: $version"
+          # job-wide so the republish stamp sees it. build-versions.sh passes -p: per leg, which wins.
+          echo "GameManagedDir=${{ steps.refs-16.outputs.managed-dir }}" >> "$GITHUB_ENV"
 
       - name: dotnet build
-        run: dotnet build Quickstarts.slnx -c Release --nologo --no-restore
+        run: npx build-mod Quickstarts.slnx --nologo
 
       - name: dotnet test
         run: |
@@ -57,6 +84,7 @@ jobs:
 
       - uses: RimWorks/mod-ci/.github/actions/steam-republish@v1
         with:
+          solution: Quickstarts.slnx
           workshop-id: ${{ vars.WORKSHOP_ID }}
           steam-username: ${{ secrets.STEAM_USERNAME }}
           steam-config-vdf-b64: ${{ secrets.STEAM_CONFIG_VDF_B64 }}

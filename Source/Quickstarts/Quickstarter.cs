@@ -346,6 +346,15 @@ public class Quickstarter {
     quickstart.PreGenerateWorld();
 
     Watchdog.Stage = "generating-world";
+#if RW_1_5
+    // 1.5's GenerateWorld has no LandmarkDensity parameter
+    Current.Game.World = WorldGenerator.GenerateWorld(
+        quickstart.planetCoverage,
+        seedUsed,
+        OverallRainfall.Normal,
+        OverallTemperature.Normal,
+        OverallPopulation.Normal);
+#else
     Current.Game.World = WorldGenerator.GenerateWorld(
         quickstart.planetCoverage,
         seedUsed,
@@ -353,6 +362,7 @@ public class Quickstarter {
         OverallTemperature.Normal,
         OverallPopulation.Normal,
         LandmarkDensity.Normal);
+#endif
 
     // The seed state StartGame pushed is still held here, so the tile is fixed too.
     Find.GameInitData.ChooseRandomStartingTile();

@@ -23,25 +23,19 @@ jobs:
     secrets:
       STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
       STEAM_CONFIG_VDF_B64: ${{ secrets.STEAM_CONFIG_VDF_B64 }}
-
-  sonar:
-    name: sonar
-    uses: ./.github/workflows/sonar.yml
-    permissions:
-      contents: read
-      packages: read
-    secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   release:
     name: semantic-release
-    needs: [ci, sonar]
+    needs: [ci]
     runs-on: ubuntu-latest
     permissions:
       contents: write
       issues: write
       pull-requests: write
       id-token: write
+      # stage-game-refs pulls the images ci already built
+      packages: read
     steps:
       - uses: actions/checkout@v7
         with:
@@ -60,6 +54,19 @@ jobs:
 
       - name: Install release dependencies
         run: npm ci --ignore-scripts
+
+      # the release builds every version the mod ships, so each one needs its own refs. ci
+      # already built both images, so these pulls hit a tag that exists.
+      - uses: RimWorks/mod-ci/.github/actions/stage-game-refs@v1
+        with:
+          image: ${{ fromJSON(needs.ci.outputs.image-refs)['1.5'] }}
+          dest: ${{ runner.temp }}/game/1.5
+
+      - uses: RimWorks/mod-ci/.github/actions/stage-game-refs@v1
+        id: refs-16
+        with:
+          image: ${{ fromJSON(needs.ci.outputs.image-refs)['1.6'] }}
+          dest: ${{ runner.temp }}/game/1.6
 
       - name: Get a NuGet API key by trusted publishing
         uses: NuGet/login@v1
@@ -82,6 +89,10 @@ jobs:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
           WORKSHOP_ID: ${{ vars.WORKSHOP_ID }}
           STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          # the per-version build loop and the stamp both read this
+          GAME_REFS_ROOT: ${{ runner.temp }}/game
+          # dotnet pack builds Quickstarts too, and it takes the newest version's refs
+          GameManagedDir: ${{ steps.refs-16.outputs.managed-dir }}
         run: ./node_modules/.bin/semantic-release
 
       - uses: RimWorks/mod-ci/.github/actions/discord-release@v1

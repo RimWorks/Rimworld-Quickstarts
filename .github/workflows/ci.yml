@@ -7,6 +7,13 @@ on:
         required: false
       STEAM_CONFIG_VDF_B64:
         required: false
+      SONAR_TOKEN:
+        required: false
+    outputs:
+      # release builds every version too, and building the images twice costs half an hour
+      image-refs:
+        description: JSON map of game version to the image the release job compiles against
+        value: ${{ jobs.images.outputs.image-refs }}
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -61,6 +68,7 @@ jobs:
 
   build:
     name: build
+    needs: images
     uses: RimWorks/mod-ci/.github/workflows/dotnet-build.yml@v1
     permissions:
       contents: read
@@ -69,15 +77,53 @@ jobs:
       checks: write
     with:
       solution: Quickstarts.slnx
+      dotnet-version: 10.0.x
+      game-images: ${{ needs.images.outputs.image-refs }}
 
-  game-image:
-    name: rimworld 1.6 image
+  package-deps:
+    name: package deps
+    needs: images
+    uses: RimWorks/mod-ci/.github/workflows/package-deps.yml@v1
+    permissions:
+      contents: read
+      # stage-game-refs pulls the image the pack compiles against
+      packages: read
+    with:
+      project: Source/Quickstarts.Ref/Quickstarts.Ref.csproj
+      reference-packages: |
+        Concord.Ref
+        Microsoft.NETFramework.ReferenceAssemblies
+      game-image: ${{ fromJSON(needs.images.outputs.image-refs)['1.6'] }}
+
+  # in ci, not its own workflow: the scan has to compile, and the image it compiles against is
+  # the one ci already built. a second image job would race this one on the same tag.
+  sonar:
+    name: sonar
+    needs: images
+    uses: RimWorks/mod-ci/.github/workflows/sonar.yml@v1
+    permissions:
+      contents: read
+      packages: read
+    with:
+      solution: Quickstarts.slnx
+      project-key: RimWorks_Rimworld-Quickstarts
+      exclusions: Styles/**,artifacts/**,**/bin/**,**/obj/**
+      coverage-exclusions: Source/Quickstarts/Builtin/**,Source/Quickstarts/Dev/**,Source/Quickstarts/UI/**,Source/Quickstarts/Patching/PatchBackends.cs,Source/Quickstarts/Patching/QuickstartHooks.cs,Source/Quickstarts/Verification/LogCapture.cs,Source/Quickstarts/Verification/VerificationReport.cs,Source/Quickstarts/AbstractQuickstart.cs,Source/Quickstarts/DelayedActionScheduler.cs,Source/Quickstarts/Logger.cs,Source/Quickstarts/QuickstartArgs.cs,Source/Quickstarts/QuickstartCharacterSetupRegistry.cs,Source/Quickstarts/QuickstartRegistry.cs,Source/Quickstarts/Quickstarter.cs,Source/Quickstarts/QuickstartsMod.cs,Source/Quickstarts/QuickstartsSettings.cs,Source/Quickstarts/VanillaQuicktest.cs,Source/Quickstarts.Patches.*/**
+      game-image: ${{ fromJSON(needs.images.outputs.image-refs)['1.6'] }}
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # one image name, one tag per branch: the ref comes out as latest-<branch-slug>
+  images:
+    name: rimworld images
     uses: RimWorks/mod-ci/.github/workflows/game-image.yml@v1
     permissions:
       contents: read
       packages: write
     with:
-      branch: version-1.6.4633
+      branches: |
+        1.5=version-1.5
+        1.6=version-1.6.4633
       image: ghcr.io/${{ github.repository_owner }}/rimworld-game-runnable
     secrets:
       STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
@@ -85,7 +131,7 @@ jobs:
 
   quickstart:
     name: quickstart (${{ matrix.backend }})
-    needs: [game-image]
+    needs: images
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -104,8 +150,17 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      # the game in this job is 1.6, so only 1.6 needs building for it
+      - name: Stage game assemblies
+        id: refs
+        uses: RimWorks/mod-ci/.github/actions/stage-game-refs@v1
+        with:
+          image: ${{ fromJSON(needs.images.outputs.image-refs)['1.6'] }}
+
       - name: Build the mod
-        run: dotnet build Quickstarts.slnx -c Release
+        run: >
+          dotnet build Quickstarts.slnx -c Release -p:GameVersion=1.6
+          "-p:GameManagedDir=${{ steps.refs.outputs.managed-dir }}"
 
       # pickle-version none: this job runs a quickstart smoke test, not a pickle suite
       - uses: RimWorks/mod-ci/.github/actions/stage-mods@v1
@@ -119,7 +174,7 @@ jobs:
 
       - name: Run the quickstart
         env:
-          GAME_IMAGE: ${{ needs.game-image.outputs.image-ref }}
+          GAME_IMAGE: ${{ fromJSON(needs.images.outputs.image-refs)['1.6'] }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "$GHCR_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
