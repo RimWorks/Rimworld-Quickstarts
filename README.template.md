@@ -54,4 +54,3 @@ Source and documentation: https://github.com/RimWorks/Rimworld-Quickstarts
 
 - [Pickle](https://steamcommunity.com/sharedfiles/filedetails/?id=3791648678): run Gherkin tests against a live RimWorld session.
 - [RimLogging](https://steamcommunity.com/sharedfiles/filedetails/?id=3733484696): structured log viewer and one-click bug report sharing.
-- [RimObs](https://steamcommunity.com/sharedfiles/filedetails/?id=3733585062): performance profiler that finds which mod is eating your TPS.

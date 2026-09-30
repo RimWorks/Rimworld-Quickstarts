@@ -212,7 +212,6 @@ so the other one never has to resolve.
 | --- | --- |
 | [Pickle](https://github.com/RimWorks/Rimworld-Pickle) | Run Gherkin tests against a live RimWorld session, in the game |
 | [RimLogging](https://github.com/RimWorks/rimworld-logging-framework) | Structured logging, an in-game log viewer, and one-click bug report sharing |
-| [RimObs](https://github.com/RimWorks/rimworld-observability-collector) | Performance profiler and telemetry that finds which mod is eating your TPS |
 
 ## License
 
