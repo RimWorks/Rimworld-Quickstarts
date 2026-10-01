@@ -222,3 +222,21 @@ jobs:
           name: quickstart-${{ matrix.backend }}
           path: quickstart-out/
           if-no-files-found: warn
+
+  gate:
+    name: ci gate
+    if: always()
+    needs: [prose, links, workshop-description, images, build, package-deps, quickstart, sonar]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail unless every job this gate covers passed or was skipped
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "$RESULTS"
+          for result in $RESULTS; do
+            case "$result" in
+              success | skipped) ;;
+              *) echo "a job this gate covers reported $result" && exit 1 ;;
+            esac
+          done
