@@ -124,7 +124,7 @@ jobs:
       artifact-prefix: ci-image-ref
       branches: |
         1.5=version-1.5
-        1.6=version-1.6.4633
+        1.6=public
       image: ghcr.io/${{ github.repository_owner }}/rimworld-game-runnable
     secrets:
       STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
