@@ -28,13 +28,13 @@ concurrency:
 jobs:
   prose:
     name: prose
-    uses: RimWorks/mod-ci/.github/workflows/prose.yml@v3
+    uses: RimWorks/mod-ci/.github/workflows/prose.yml@v4
     permissions:
       contents: read
 
   links:
     name: links
-    uses: RimWorks/mod-ci/.github/workflows/links.yml@v3
+    uses: RimWorks/mod-ci/.github/workflows/links.yml@v4
     permissions:
       contents: read
     with:
@@ -69,7 +69,7 @@ jobs:
   build:
     name: build
     needs: images
-    uses: RimWorks/mod-ci/.github/workflows/dotnet-build.yml@v3
+    uses: RimWorks/mod-ci/.github/workflows/dotnet-build.yml@v4
     permissions:
       contents: read
       # mod-ci's dotnet-build declares it: the restore pulls packages from ghcr
@@ -83,7 +83,7 @@ jobs:
   package-deps:
     name: package deps
     needs: images
-    uses: RimWorks/mod-ci/.github/workflows/package-deps.yml@v3
+    uses: RimWorks/mod-ci/.github/workflows/package-deps.yml@v4
     permissions:
       contents: read
       # stage-game-refs pulls the image the pack compiles against
@@ -100,7 +100,7 @@ jobs:
   sonar:
     name: sonar
     needs: images
-    uses: RimWorks/mod-ci/.github/workflows/sonar.yml@v3
+    uses: RimWorks/mod-ci/.github/workflows/sonar.yml@v4
     permissions:
       contents: read
       packages: read
@@ -116,7 +116,7 @@ jobs:
   # one image name, one tag per branch: the ref comes out as latest-<branch-slug>
   images:
     name: rimworld images
-    uses: RimWorks/mod-ci/.github/workflows/game-image.yml@v3
+    uses: RimWorks/mod-ci/.github/workflows/game-image.yml@v4
     permissions:
       contents: read
       packages: write
@@ -154,7 +154,7 @@ jobs:
       # the game in this job is 1.6, so only 1.6 needs building for it
       - name: Stage game assemblies
         id: refs
-        uses: RimWorks/mod-ci/.github/actions/stage-game-refs@v3
+        uses: RimWorks/mod-ci/.github/actions/stage-game-refs@v4
         with:
           image: ${{ fromJSON(needs.images.outputs.image-refs)['1.6'] }}
 
@@ -164,7 +164,7 @@ jobs:
           "-p:GameManagedDir=${{ steps.refs.outputs.managed-dir }}"
 
       # pickle-version none: this job runs a quickstart smoke test, not a pickle suite
-      - uses: RimWorks/mod-ci/.github/actions/stage-mods@v3
+      - uses: RimWorks/mod-ci/.github/actions/stage-mods@v4
         with:
           backends: ${{ matrix.backend }}
           mods-dir: ${{ runner.temp }}/mods
