@@ -68,6 +68,22 @@ jobs:
           image: ${{ fromJSON(needs.ci.outputs.image-refs)['1.6'] }}
           dest: ${{ runner.temp }}/game/1.6
 
+      - uses: RimWorks/mod-ci/.github/actions/stage-game-refs@v4
+        with:
+          image: ${{ fromJSON(needs.ci.outputs.image-refs)['1.7'] }}
+          dest: ${{ runner.temp }}/game/1.7
+
+      - name: Check out RimLogging for the 1.7 leg
+        uses: actions/checkout@v7
+        with:
+          repository: RimWorks/rimworld-logging-framework
+          path: rimlogging
+
+      - name: Point the 1.7 build at the RimLogging checkout
+        run: >
+          echo "RimLoggingProject=$PWD/rimlogging/Source/RimWorks.RimLogging/RimWorks.RimLogging.csproj"
+          >> "$GITHUB_ENV"
+
       - name: Get a NuGet API key by trusted publishing
         uses: NuGet/login@v1
         id: nuget-login

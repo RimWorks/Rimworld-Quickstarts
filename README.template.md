@@ -42,7 +42,7 @@ Red errors in the game log fail the run by default, which is what catches a brok
 
 ## Requirements
 
-RimWorld 1.6, dev mode on, and one patching library. Harmony or Concord both work. Quickstarts prefers Concord when you have both.
+RimWorld 1.6 or 1.7, dev mode on, and one patching library. Harmony or Concord both work. Quickstarts prefers Concord when you have both.
 
 ## Getting started
 

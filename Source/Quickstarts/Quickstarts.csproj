@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- net472 is what the game loads. net10.0 exists so coverlet has a modern assembly to
-         instrument, and never ships. -->
-    <TargetFrameworks>net472;net10.0</TargetFrameworks>
+    <!-- GameTfm is what the game loads. On net472 the extra net10.0 build gives coverlet a
+         modern assembly to instrument and never ships; on 1.7 the two are the same build. -->
+    <TargetFrameworks>$(GameTfm);net10.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(GameTfm)' == 'net10.0'">net10.0</TargetFrameworks>
     <TargetFramework></TargetFramework>
     <AssemblyName>Quickstarts</AssemblyName>
     <RootNamespace>RimWorks.Quickstarts</RootNamespace>
@@ -10,8 +11,8 @@
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
 
     <!-- The game reads <version>/Assemblies/, so only the shipped build lands there. -->
-    <OutDir Condition="'$(TargetFramework)' == 'net472'">$(MSBuildProjectDirectory)\..\..\$(GameVersion)\Assemblies\</OutDir>
-    <AppendTargetFrameworkToOutputPath Condition="'$(TargetFramework)' == 'net472'">false</AppendTargetFrameworkToOutputPath>
+    <OutDir Condition="'$(TargetFramework)' == '$(GameTfm)'">$(MSBuildProjectDirectory)\..\..\$(GameVersion)\Assemblies\</OutDir>
+    <AppendTargetFrameworkToOutputPath Condition="'$(TargetFramework)' == '$(GameTfm)'">false</AppendTargetFrameworkToOutputPath>
 
     <!-- The game packages are net472. The rest fire because net10.0 has APIs and nullability
          annotations net472 lacks, so the shipped build cannot take the suggestion. -->
@@ -23,7 +24,8 @@
       <Private>False</Private>
     </Reference>
     <!-- Compile-only: the RimLogging mod ships the dll, so a bundled copy would load twice. -->
-    <PackageReference Include="RimWorks.RimLogging" Version="3.*" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="RimWorks.RimLogging" Version="3.*" ExcludeAssets="runtime" PrivateAssets="all" Condition="'$(GameVersion)' != '1.7'" />
+    <ProjectReference Include="$(RimLoggingProject)" Private="false" PrivateAssets="all" Condition="'$(GameVersion)' == '1.7'" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Quickstarts.Tests" />

@@ -32,13 +32,14 @@ Most work lands in `Source/Quickstarts/`. See `README.md` for the scenario API.
 - `Source/Quickstarts.Ref/` - compile-time reference assembly published for mod authors
 - `Source/Quickstarts.Tests/` - MSTest suite
 - `About/`, `Languages/`, `Styles/` - RimWorld mod content
-- `1.5/`, `1.6/` - build output the game loads, one folder per version in `loadFolders.xml`
+- `1.5/`, `1.6/`, `1.7/` - build output the game loads, one folder per version in `loadFolders.xml`
 
 ## Setup and build
 
 ```bash
 gamecrate steam build rimworld --beta public       # 1.6 assemblies to compile against
 gamecrate steam build rimworld --beta version-1.5  # and 1.5
+gamecrate steam build rimworld --beta version-1.7  # and 1.7
 dotnet build Quickstarts.slnx -c Release -p:GameVersion=1.6   # StyleCop and Sonar analyzers run here
 scripts/build-versions.sh                          # every version loadFolders.xml declares
 ```
@@ -78,10 +79,10 @@ off; the script flips it, a bare launch does not.
 
 | Project | Targets | Holds |
 | --- | --- | --- |
-| `Quickstarts` | `net472;net10.0` | The mod assembly: registry, runner, dev menu UI, verification, report writers |
-| `Quickstarts.Patches.Harmony` | `net472` | Quickstarts' hooks as Harmony patches |
-| `Quickstarts.Patches.Concord` | `net472` | The same hooks as Concord injections |
-| `Quickstarts.Ref` | `net472` | Compile-time reference assembly published for mod authors |
+| `Quickstarts` | `net472;net10.0`, or `net10.0` for 1.7 | The mod assembly: registry, runner, dev menu UI, verification, report writers |
+| `Quickstarts.Patches.Harmony` | `net472`, or `net10.0` for 1.7 | Quickstarts' hooks as Harmony patches |
+| `Quickstarts.Patches.Concord` | `net472`, or `net10.0` for 1.7 | The same hooks as Concord injections |
+| `Quickstarts.Ref` | `net472`, or `net10.0` for 1.7 | Compile-time reference assembly published for mod authors |
 | `Quickstarts.Tests` | `net10.0` | MSTest over the mod assembly |
 
 There is no RimWorld-free core project here. The mod assembly multi-targets instead, and the
@@ -90,6 +91,40 @@ only reaches types that never reference `Verse` or Unity at runtime: `SeedResolv
 `QuickstartLookup`, the report writers, `LogSummary` and `Watchdog`. Anything calling into the
 game still compiles against the ref assemblies, so a test that touches it fails at runtime
 rather than at build. Prove that code with a real run.
+
+## Game versions
+
+`GameVersion` picks both the game assemblies and the runtime. 1.5 and 1.6 run Unity's mono at
+`net472`. 1.7 runs WaylithCLR at `net10.0`, so `Source/Directory.Build.props` maps the version
+to a `GameTfm` and every project targets that.
+
+1.7 has no Unity. It ships `UnityStubs.dll` and `Waylith.UnityCompat.dll` instead, which is why
+the UI code and `Application.Quit` still compile unchanged.
+
+**Harmony cannot patch 1.7 yet.** The Harmony mod on the Workshop ships Lib.Harmony 2.4.2, whose
+CoreCLR version table stops at 9, so it throws
+`PlatformNotSupportedException: CoreCLR version 10.0.10 is not supported`. Concord is the only
+backend that patches 1.7 today. Quickstarts logs the failure and exits `1`, and the CI matrix
+skips the 1.7 Harmony job until the Harmony mod ships a build that patches on .NET 10.
+
+Two dependencies have no published package for 1.7, so a local build stands in for each:
+
+| Dependency | Where a 1.7 build looks | Published fallback |
+| --- | --- | --- |
+| Lib.Harmony | `~/.local/share/harmony3/<tfm>/0Harmony.dll`, override with `HarmonyDir` | `Lib.Harmony` `3.0.*-*` from NuGet |
+| RimLogging | `../rimworld-logging-framework`, override with `RimLoggingProject` | its NuGet package, used by 1.5 and 1.6 |
+
+Build Harmony from `pardeike/Harmony`'s `v3` branch, one framework at a time, and copy the
+output of each leg to the path above:
+
+```bash
+git clone --branch v3 --recurse-submodules https://github.com/pardeike/Harmony.git
+dotnet build Lib.Harmony/Lib.Harmony.csproj -c Release -f net472   # 1.5 and 1.6
+dotnet build Lib.Harmony/Lib.Harmony.csproj -c Release -f net10.0  # 1.7
+```
+
+With no dll at that path the build falls back to NuGet, which fails with `NU1102` until
+Lib.Harmony 3 publishes.
 
 ## Patch backends
 
