@@ -1,0 +1,28 @@
+game: rimworld
+defaultProfile: quickstarts
+build: always
+replace: true
+resolution: 2560x1440
+log: game.log
+library:
+  brrainz.harmony:
+    workshop: 2009463077
+  concordlib.concord:
+    workshop: 3758333473
+  rimworks.rimlogging:
+    workshop: 3733484696
+profiles:
+  quickstarts:
+    mods:
+      - rimworks.quickstarts
+    aliases:
+      - qs
+    autoDependencies: true
+  harmony:
+    extends: quickstarts
+    mods:
+      - brrainz.harmony
+  concord:
+    extends: quickstarts
+    mods:
+      - concordlib.concord

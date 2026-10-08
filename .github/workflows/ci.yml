@@ -163,44 +163,55 @@ jobs:
           dotnet build Quickstarts.slnx -c Release -p:GameVersion=1.6
           "-p:GameManagedDir=${{ steps.refs.outputs.managed-dir }}"
 
-      # pickle-version none: this job runs a quickstart smoke test, not a pickle suite
-      - uses: RimWorks/mod-ci/.github/actions/stage-mods@v4
+      - uses: actions/setup-node@v7
         with:
-          backends: ${{ matrix.backend }}
-          mods-dir: ${{ runner.temp }}/mods
-          config-dir: ${{ runner.temp }}/config
-          mod-name: Quickstarts
-          mod-package-id: rimworks.quickstarts
-          pickle-version: none
+          node-version: '22'
+
+      - name: Cache the workshop downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/gamecrate/steam/steamapps/workshop/content/294100
+            ~/.local/share/gamecrate/steam/steamapps/workshop/appworkshop_294100.acf
+          key: gamecrate-workshop-294100-${{ github.run_id }}-${{ matrix.backend }}
+          restore-keys: gamecrate-workshop-294100-
 
       - name: Run the quickstart
         env:
           GAME_IMAGE: ${{ fromJSON(needs.images.outputs.image-refs)['1.6'] }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BACKEND: ${{ matrix.backend }}
         run: |
           echo "$GHCR_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-          echo "pulling $GAME_IMAGE ..."
-          start=$SECONDS
-          docker pull -q "$GAME_IMAGE"
-          echo "pulled in $((SECONDS - start))s"
+          npm install -g --no-fund --no-audit '@gamecrate/cli@^3.4' '@gamecrate/rimworld@2.2.0'
 
           mkdir -p "$PWD/quickstart-out"
           chmod 777 "$PWD/quickstart-out"
 
-          CFG="/home/app/.config/unity3d/Ludeon Studios/RimWorld by Ludeon Studios/Config"
+          export XDG_CONFIG_HOME="$RUNNER_TEMP/gamecrate-config"
+          mkdir -p "$XDG_CONFIG_HOME/gamecrate"
+          cat > "$XDG_CONFIG_HOME/gamecrate/config.yml" <<YML
+          defaults:
+            settings:
+              cpus: $(nproc)
+          games:
+            rimworld:
+              image:
+                updates:
+                  check: false
+          YML
 
           status=0
-          docker run --rm --name quickstart-run \
-            -v "$RUNNER_TEMP/mods:/game/Mods:ro" \
-            -v "$RUNNER_TEMP/config:$CFG" \
-            -v "$PWD/quickstart-out:/out" \
-            "$GAME_IMAGE" \
-            run-headless /game/RimWorldLinux -quickstart=ScenarioTestQuickstart \
-              -quickstartreport=/out/report.json \
-              -quickstartjunit=/out/junit.xml \
-              -quickstarttimeout=420 \
-              -logfile /out/Player.log || status=$?
+          gamecrate run "$BACKEND" --game rimworld --image "$GAME_IMAGE" \
+            --mode headless --plain --timeout 600 \
+            --mod "path:$PWD" \
+            --docker-arg -v --docker-arg "$PWD/quickstart-out:/out" \
+            -- -quickstart=ScenarioTestQuickstart \
+               -quickstartreport=/out/report.json \
+               -quickstartjunit=/out/junit.xml \
+               -quickstarttimeout=420 \
+               -logfile /out/Player.log || status=$?
 
           echo "quickstart exited with $status"
           [[ -f quickstart-out/report.json ]] && cat quickstart-out/report.json
