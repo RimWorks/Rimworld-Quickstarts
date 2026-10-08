@@ -204,7 +204,7 @@ jobs:
 
           status=0
           gamecrate run "$BACKEND" --game rimworld --image "$GAME_IMAGE" \
-            --mode headless --plain --timeout 600 \
+            --mode headless --plain --timeout 600 --no-build \
             --mod "path:$PWD" \
             --docker-arg -v --docker-arg "$PWD/quickstart-out:/out" \
             -- -quickstart=ScenarioTestQuickstart \
