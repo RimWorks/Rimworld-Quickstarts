@@ -101,30 +101,15 @@ to a `GameTfm` and every project targets that.
 1.7 has no Unity. It ships `UnityStubs.dll` and `Waylith.UnityCompat.dll` instead, which is why
 the UI code and `Application.Quit` still compile unchanged.
 
-**Harmony cannot patch 1.7 yet.** The Harmony mod on the Workshop ships Lib.Harmony 2.4.2, whose
-CoreCLR version table stops at 9, so it throws
-`PlatformNotSupportedException: CoreCLR version 10.0.10 is not supported`. Concord is the only
-backend that patches 1.7 today. Quickstarts logs the failure and exits `1`, and the CI matrix
-skips the 1.7 Harmony job until the Harmony mod ships a build that patches on .NET 10.
+Both backends patch every version. Harmony needs 3.0 on 1.7, because Harmony 2's CoreCLR
+version table stops at 9. Every version compiles against `Lib.Harmony` `3.0.*-*` from NuGet,
+which ships both `net472` and `net10.0`. The wildcard matches a prerelease because 3.0 is
+still at `rc`. At runtime the dll comes from the Workshop Harmony mod, which needs a 1.7
+folder in its `LoadFolders.xml` to patch there.
 
-Two dependencies have no published package for 1.7, so a local build stands in for each:
-
-| Dependency | Where a 1.7 build looks | Published fallback |
-| --- | --- | --- |
-| Lib.Harmony | `~/.local/share/harmony3/<tfm>/0Harmony.dll`, override with `HarmonyDir` | `Lib.Harmony` `3.0.*-*` from NuGet |
-| RimLogging | `../rimworld-logging-framework`, override with `RimLoggingProject` | its NuGet package, used by 1.5 and 1.6 |
-
-Build Harmony from `pardeike/Harmony`'s `v3` branch, one framework at a time, and copy the
-output of each leg to the path above:
-
-```bash
-git clone --branch v3 --recurse-submodules https://github.com/pardeike/Harmony.git
-dotnet build Lib.Harmony/Lib.Harmony.csproj -c Release -f net472   # 1.5 and 1.6
-dotnet build Lib.Harmony/Lib.Harmony.csproj -c Release -f net10.0  # 1.7
-```
-
-With no dll at that path the build falls back to NuGet, which fails with `NU1102` until
-Lib.Harmony 3 publishes.
+RimLogging has no 1.7 package yet, so a 1.7 build uses the sibling checkout at
+`../rimworld-logging-framework`. Override it with `RimLoggingProject`. 1.5 and 1.6 take its
+NuGet package.
 
 ## Patch backends
 

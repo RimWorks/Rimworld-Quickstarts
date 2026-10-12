@@ -25,12 +25,6 @@
     <GameTfm Condition="'$(GameTfm)' == ''">net472</GameTfm>
     <TargetFramework>$(GameTfm)</TargetFramework>
 
-    <!-- Lib.Harmony 3 is not on nuget yet, so a local build of pardeike/Harmony's v3 branch
-         stands in for it until the package publishes. -->
-    <HarmonyDir Condition="'$(HarmonyDir)' == ''">$([System.IO.Path]::Combine($([System.Environment]::GetFolderPath(SpecialFolder.UserProfile)), '.local', 'share', 'harmony3', '$(GameTfm)'))</HarmonyDir>
-    <HarmonyLocal>false</HarmonyLocal>
-    <HarmonyLocal Condition="Exists('$(HarmonyDir)/0Harmony.dll')">true</HarmonyLocal>
-
     <RimLoggingProject Condition="'$(RimLoggingProject)' == ''">$(MSBuildThisFileDirectory)..\..\rimworld-logging-framework\Source\RimWorks.RimLogging\RimWorks.RimLogging.csproj</RimLoggingProject>
 
     <HasGameRefs>false</HasGameRefs>

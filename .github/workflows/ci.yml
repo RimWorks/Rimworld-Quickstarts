@@ -145,9 +145,6 @@ jobs:
       matrix:
         backend: [harmony, concord]
         version: ['1.6', '1.7']
-        exclude:
-          - backend: harmony
-            version: '1.7'
     steps:
       - uses: actions/checkout@v7
 

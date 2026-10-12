@@ -11,8 +11,7 @@
                Exclude="$(GamecrateRefs)/System.*.dll;$(GamecrateRefs)/System.dll;$(GamecrateRefs)/Microsoft.*.dll;$(GamecrateRefs)/mscorlib.dll;$(GamecrateRefs)/netstandard.dll;$(GamecrateRefs)/WindowsBase.dll">
       <Private>False</Private>
     </Reference>
-    <PackageReference Include="Lib.Harmony" Version="3.0.*-*" ExcludeAssets="runtime" PrivateAssets="all" Condition="'$(HarmonyLocal)' != 'true'" />
-    <Reference Include="$(HarmonyDir)/0Harmony.dll" Private="False" Condition="'$(HarmonyLocal)' == 'true'" />
+    <PackageReference Include="Lib.Harmony" Version="3.0.*-*" ExcludeAssets="runtime" PrivateAssets="all" />
     <PackageReference Include="RimWorks.RimLogging" Version="3.*" ExcludeAssets="runtime" PrivateAssets="all" Condition="'$(GameVersion)' != '1.7'" />
     <ProjectReference Include="$(RimLoggingProject)" Private="false" PrivateAssets="all" Condition="'$(GameVersion)' == '1.7'" />
   </ItemGroup>
