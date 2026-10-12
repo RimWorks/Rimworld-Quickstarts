@@ -23,7 +23,21 @@ profiles:
     extends: quickstarts
     mods:
       - brrainz.harmony
+    autoDependencies: false
+    exclude:
+      - concordlib.concord
+      - CryptikLemur.NoSteamPopup
   concord:
     extends: quickstarts
     mods:
       - concordlib.concord
+  harmony-17:
+    extends: harmony
+    gameVersion: '1.7'
+    aliases:
+      - h17
+  concord-17:
+    extends: concord
+    gameVersion: '1.7'
+    aliases:
+      - c17

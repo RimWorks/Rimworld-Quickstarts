@@ -195,12 +195,16 @@ JUnit.
 ```bash
 gamecrate steam build rimworld --beta public         # 1.6 assemblies to compile against
 gamecrate steam build rimworld --beta version-1.5    # and 1.5
+gamecrate steam build rimworld --beta version-1.7    # and 1.7
 dotnet build Quickstarts.slnx -c Release -p:GameVersion=1.6
 scripts/build-versions.sh                            # or every version loadFolders.xml declares
 ```
 
 A build needs no `npm install`. `node_modules` holds the release tooling, and the msbuild
 properties live in `Source/Directory.Build.props`.
+
+`GameVersion` also picks the runtime. 1.5 and 1.6 build for `net472`, the framework Unity's mono
+runs. 1.7 builds for `net10.0`, which is what WaylithCLR runs.
 
 Output lands in `1.6/Assemblies/`, `1.6/Harmony/Assemblies/` and `1.6/Concord/Assemblies/`, one
 folder per game version. `loadFolders.xml` loads only the backend folder whose library is active,

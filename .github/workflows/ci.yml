@@ -17,6 +17,11 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      force:
+        description: Rebuild the game images even when the Steam buildid has not moved.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -122,16 +127,18 @@ jobs:
       packages: write
     with:
       artifact-prefix: ci-image-ref
+      force: ${{ inputs.force || false }}
       branches: |
         1.5=version-1.5
         1.6=public
+        1.7=unstable
       image: ghcr.io/${{ github.repository_owner }}/rimworld-game-runnable
     secrets:
       STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
       STEAM_CONFIG_VDF_B64: ${{ secrets.STEAM_CONFIG_VDF_B64 }}
 
   quickstart:
-    name: quickstart (${{ matrix.backend }})
+    name: quickstart (${{ matrix.version }}, ${{ matrix.backend }})
     needs: images
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -143,6 +150,7 @@ jobs:
       fail-fast: false
       matrix:
         backend: [harmony, concord]
+        version: ['1.6', '1.7']
     steps:
       - uses: actions/checkout@v7
 
@@ -151,16 +159,15 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      # the game in this job is 1.6, so only 1.6 needs building for it
       - name: Stage game assemblies
         id: refs
         uses: RimWorks/mod-ci/.github/actions/stage-game-refs@v4
         with:
-          image: ${{ fromJSON(needs.images.outputs.image-refs)['1.6'] }}
+          image: ${{ fromJSON(needs.images.outputs.image-refs)[matrix.version] }}
 
       - name: Build the mod
         run: >
-          dotnet build Quickstarts.slnx -c Release -p:GameVersion=1.6
+          dotnet build Quickstarts.slnx -c Release -p:GameVersion=${{ matrix.version }}
           "-p:GameManagedDir=${{ steps.refs.outputs.managed-dir }}"
 
       - uses: actions/setup-node@v7
@@ -173,18 +180,19 @@ jobs:
           path: |
             ~/.local/share/gamecrate/steam/steamapps/workshop/content/294100
             ~/.local/share/gamecrate/steam/steamapps/workshop/appworkshop_294100.acf
-          key: gamecrate-workshop-294100-${{ github.run_id }}-${{ matrix.backend }}
+          key: gamecrate-workshop-294100-${{ github.run_id }}-${{ matrix.version }}-${{ matrix.backend }}
           restore-keys: gamecrate-workshop-294100-
 
       - name: Run the quickstart
         env:
-          GAME_IMAGE: ${{ fromJSON(needs.images.outputs.image-refs)['1.6'] }}
+          GAME_IMAGE: ${{ fromJSON(needs.images.outputs.image-refs)[matrix.version] }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BACKEND: ${{ matrix.backend }}
         run: |
           echo "$GHCR_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-          npm install -g --no-fund --no-audit '@gamecrate/cli@^3.4' '@gamecrate/rimworld@2.2.0'
+          npm install -g --no-fund --no-audit --ignore-scripts \
+            '@gamecrate/cli@3.7.0' '@gamecrate/rimworld@2.5.0'
 
           mkdir -p "$PWD/quickstart-out"
           chmod 777 "$PWD/quickstart-out"
@@ -221,7 +229,7 @@ jobs:
         if: always()
         uses: dorny/test-reporter@v3
         with:
-          name: quickstart (${{ matrix.backend }})
+          name: quickstart (${{ matrix.version }}, ${{ matrix.backend }})
           path: quickstart-out/junit.xml
           reporter: java-junit
           fail-on-error: false
@@ -230,7 +238,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: quickstart-${{ matrix.backend }}
+          name: quickstart-${{ matrix.version }}-${{ matrix.backend }}
           path: quickstart-out/
           if-no-files-found: warn
 

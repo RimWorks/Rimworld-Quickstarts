@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>$(GameTfm)</TargetFramework>
     <PackageId>RimWorks.Quickstarts.Ref</PackageId>
     <Version>1.0.0</Version>
     <Authors>RimWorks</Authors>
@@ -27,7 +27,7 @@
     <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
 
     <!-- ref/, not lib/: compile-only, so a consumer never copies this next to the real dll. -->
-    <None Include="..\Quickstarts\obj\$(Configuration)\ref\Quickstarts.dll" Pack="true" PackagePath="ref/net472/" Visible="false" />
-    <None Include="_._" Pack="true" PackagePath="lib/net472/" Visible="false" Condition="Exists('_._')" />
+    <None Include="..\Quickstarts\obj\$(Configuration)\ref\Quickstarts.dll" Pack="true" PackagePath="ref/$(GameTfm)/" Visible="false" />
+    <None Include="_._" Pack="true" PackagePath="lib/$(GameTfm)/" Visible="false" Condition="Exists('_._')" />
   </ItemGroup>
 </Project>

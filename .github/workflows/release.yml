@@ -68,6 +68,11 @@ jobs:
           image: ${{ fromJSON(needs.ci.outputs.image-refs)['1.6'] }}
           dest: ${{ runner.temp }}/game/1.6
 
+      - uses: RimWorks/mod-ci/.github/actions/stage-game-refs@v4
+        with:
+          image: ${{ fromJSON(needs.ci.outputs.image-refs)['1.7'] }}
+          dest: ${{ runner.temp }}/game/1.7
+
       - name: Get a NuGet API key by trusted publishing
         uses: NuGet/login@v1
         id: nuget-login

@@ -32,13 +32,14 @@ Most work lands in `Source/Quickstarts/`. See `README.md` for the scenario API.
 - `Source/Quickstarts.Ref/` - compile-time reference assembly published for mod authors
 - `Source/Quickstarts.Tests/` - MSTest suite
 - `About/`, `Languages/`, `Styles/` - RimWorld mod content
-- `1.5/`, `1.6/` - build output the game loads, one folder per version in `loadFolders.xml`
+- `1.5/`, `1.6/`, `1.7/` - build output the game loads, one folder per version in `loadFolders.xml`
 
 ## Setup and build
 
 ```bash
 gamecrate steam build rimworld --beta public       # 1.6 assemblies to compile against
 gamecrate steam build rimworld --beta version-1.5  # and 1.5
+gamecrate steam build rimworld --beta version-1.7  # and 1.7
 dotnet build Quickstarts.slnx -c Release -p:GameVersion=1.6   # StyleCop and Sonar analyzers run here
 scripts/build-versions.sh                          # every version loadFolders.xml declares
 ```
@@ -78,10 +79,10 @@ off; the script flips it, a bare launch does not.
 
 | Project | Targets | Holds |
 | --- | --- | --- |
-| `Quickstarts` | `net472;net10.0` | The mod assembly: registry, runner, dev menu UI, verification, report writers |
-| `Quickstarts.Patches.Harmony` | `net472` | Quickstarts' hooks as Harmony patches |
-| `Quickstarts.Patches.Concord` | `net472` | The same hooks as Concord injections |
-| `Quickstarts.Ref` | `net472` | Compile-time reference assembly published for mod authors |
+| `Quickstarts` | `net472;net10.0`, or `net10.0` for 1.7 | The mod assembly: registry, runner, dev menu UI, verification, report writers |
+| `Quickstarts.Patches.Harmony` | `net472`, or `net10.0` for 1.7 | Quickstarts' hooks as Harmony patches |
+| `Quickstarts.Patches.Concord` | `net472`, or `net10.0` for 1.7 | The same hooks as Concord injections |
+| `Quickstarts.Ref` | `net472`, or `net10.0` for 1.7 | Compile-time reference assembly published for mod authors |
 | `Quickstarts.Tests` | `net10.0` | MSTest over the mod assembly |
 
 There is no RimWorld-free core project here. The mod assembly multi-targets instead, and the
@@ -90,6 +91,22 @@ only reaches types that never reference `Verse` or Unity at runtime: `SeedResolv
 `QuickstartLookup`, the report writers, `LogSummary` and `Watchdog`. Anything calling into the
 game still compiles against the ref assemblies, so a test that touches it fails at runtime
 rather than at build. Prove that code with a real run.
+
+## Game versions
+
+`GameVersion` picks both the game assemblies and the runtime. 1.5 and 1.6 run Unity's mono at
+`net472`. 1.7 runs WaylithCLR at `net10.0`, so `Source/Directory.Build.props` maps the version
+to a `GameTfm` and every project targets that.
+
+1.7 has no Unity. It ships `UnityStubs.dll` and `Waylith.UnityCompat.dll` instead, which is why
+the UI code and `Application.Quit` still compile unchanged.
+
+Both backends patch every version. Harmony needs 3.0 on 1.7, because Harmony 2's CoreCLR
+version table stops at 9. Every version compiles against `Lib.Harmony` `3.0.*-*` from NuGet,
+which ships both `net472` and `net10.0`. The wildcard matches a prerelease because 3.0 is
+still at `rc`. At runtime `0Harmony.dll` comes from the Workshop Harmony mod, which needs a
+1.7 folder in its `LoadFolders.xml` to patch there. The same goes for RimLogging, whose
+package ships `net10.0` from 3.1.1 on.
 
 ## Patch backends
 
