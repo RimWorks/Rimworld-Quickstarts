@@ -94,6 +94,7 @@ jobs:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
           WORKSHOP_ID: ${{ vars.WORKSHOP_ID }}
           STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
           # the per-version build loop and the stamp both read this
           GAME_REFS_ROOT: ${{ runner.temp }}/game
           # dotnet pack builds Quickstarts too, and it takes the newest version's refs
