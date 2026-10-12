@@ -24,8 +24,7 @@
       <Private>False</Private>
     </Reference>
     <!-- Compile-only: the RimLogging mod ships the dll, so a bundled copy would load twice. -->
-    <PackageReference Include="RimWorks.RimLogging" Version="3.*" ExcludeAssets="runtime" PrivateAssets="all" Condition="'$(GameVersion)' != '1.7'" />
-    <ProjectReference Include="$(RimLoggingProject)" Private="false" PrivateAssets="all" Condition="'$(GameVersion)' == '1.7'" />
+    <PackageReference Include="RimWorks.RimLogging" Version="3.*" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Quickstarts.Tests" />

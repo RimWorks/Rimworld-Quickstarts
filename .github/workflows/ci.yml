@@ -148,13 +148,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Check out RimLogging
-        if: matrix.version == '1.7'
-        uses: actions/checkout@v7
-        with:
-          repository: RimWorks/rimworld-logging-framework
-          path: rimlogging
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
@@ -169,14 +162,6 @@ jobs:
       - name: Build the mod
         run: >
           dotnet build Quickstarts.slnx -c Release -p:GameVersion=${{ matrix.version }}
-          "-p:GameManagedDir=${{ steps.refs.outputs.managed-dir }}"
-          "-p:RimLoggingProject=$PWD/rimlogging/Source/RimWorks.RimLogging/RimWorks.RimLogging.csproj"
-
-      - name: Build RimLogging for the game
-        if: matrix.version == '1.7'
-        run: >
-          dotnet build rimlogging/Source/RimWorks.RimLogging/RimWorks.RimLogging.csproj
-          -c Release -p:GameVersion=${{ matrix.version }}
           "-p:GameManagedDir=${{ steps.refs.outputs.managed-dir }}"
 
       - uses: actions/setup-node@v7
@@ -197,11 +182,10 @@ jobs:
           GAME_IMAGE: ${{ fromJSON(needs.images.outputs.image-refs)[matrix.version] }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BACKEND: ${{ matrix.backend }}
-          RIMLOGGING_DIR: ${{ matrix.version == '1.7' && 'rimlogging' || '' }}
         run: |
           echo "$GHCR_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-          npm install -g --no-fund --no-audit '@gamecrate/cli@^3.4' '@gamecrate/rimworld@2.2.0'
+          npm install -g --no-fund --no-audit '@gamecrate/cli@^3.4' '@gamecrate/rimworld@2.3.0'
 
           mkdir -p "$PWD/quickstart-out"
           chmod 777 "$PWD/quickstart-out"
@@ -219,15 +203,10 @@ jobs:
                   check: false
           YML
 
-          use_args=()
-          if [[ -n "$RIMLOGGING_DIR" ]]; then
-            use_args=(--use "rimworks.rimlogging=$PWD/$RIMLOGGING_DIR")
-          fi
-
           status=0
           gamecrate run "$BACKEND" --game rimworld --image "$GAME_IMAGE" \
             --mode headless --plain --timeout 600 --no-build \
-            --mod "path:$PWD" "${use_args[@]}" \
+            --mod "path:$PWD" \
             --docker-arg -v --docker-arg "$PWD/quickstart-out:/out" \
             -- -quickstart=ScenarioTestQuickstart \
                -quickstartreport=/out/report.json \

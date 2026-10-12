@@ -25,8 +25,6 @@
     <GameTfm Condition="'$(GameTfm)' == ''">net472</GameTfm>
     <TargetFramework>$(GameTfm)</TargetFramework>
 
-    <RimLoggingProject Condition="'$(RimLoggingProject)' == ''">$(MSBuildThisFileDirectory)..\..\rimworld-logging-framework\Source\RimWorks.RimLogging\RimWorks.RimLogging.csproj</RimLoggingProject>
-
     <HasGameRefs>false</HasGameRefs>
     <HasGameRefs Condition="Exists('$(GamecrateRefs)/Assembly-CSharp.dll')">true</HasGameRefs>
 

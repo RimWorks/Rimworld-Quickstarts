@@ -70,17 +70,6 @@ jobs:
           image: ${{ fromJSON(needs.images.outputs.image-refs)['1.7'] }}
           dest: ${{ runner.temp }}/game/1.7
 
-      - name: Check out RimLogging for the 1.7 leg
-        uses: actions/checkout@v7
-        with:
-          repository: RimWorks/rimworld-logging-framework
-          path: rimlogging
-
-      - name: Point the 1.7 build at the RimLogging checkout
-        run: >
-          echo "RimLoggingProject=$PWD/rimlogging/Source/RimWorks.RimLogging/RimWorks.RimLogging.csproj"
-          >> "$GITHUB_ENV"
-
       - name: Record resolved RimWorld version
         run: |
           version=$(cat "${{ steps.refs-16.outputs.managed-dir }}/Version.txt")

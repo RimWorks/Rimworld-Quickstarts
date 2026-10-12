@@ -12,8 +12,7 @@
       <Private>False</Private>
     </Reference>
     <PackageReference Include="Concord.Ref" Version="0.24.*" ExcludeAssets="runtime" PrivateAssets="all" />
-    <PackageReference Include="RimWorks.RimLogging" Version="3.*" ExcludeAssets="runtime" PrivateAssets="all" Condition="'$(GameVersion)' != '1.7'" />
-    <ProjectReference Include="$(RimLoggingProject)" Private="false" PrivateAssets="all" Condition="'$(GameVersion)' == '1.7'" />
+    <PackageReference Include="RimWorks.RimLogging" Version="3.*" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <!-- Private=false: Quickstarts.dll ships once, from the version's Assemblies folder. -->
