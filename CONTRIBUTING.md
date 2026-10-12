@@ -104,8 +104,8 @@ the UI code and `Application.Quit` still compile unchanged.
 Both backends patch every version. Harmony needs 3.0 on 1.7, because Harmony 2's CoreCLR
 version table stops at 9. Every version compiles against `Lib.Harmony` `3.0.*-*` from NuGet,
 which ships both `net472` and `net10.0`. The wildcard matches a prerelease because 3.0 is
-still at `rc`. At runtime the dll comes from the Workshop Harmony mod, which needs a 1.7
-folder in its `LoadFolders.xml` to patch there.
+still at `rc`. At runtime `0Harmony.dll` comes from the Workshop Harmony mod, which needs a
+1.7 folder in its `LoadFolders.xml` to patch there.
 
 RimLogging has no 1.7 package yet, so a 1.7 build uses the sibling checkout at
 `../rimworld-logging-framework`. Override it with `RimLoggingProject`. 1.5 and 1.6 take its
