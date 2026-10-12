@@ -192,7 +192,7 @@ jobs:
           echo "$GHCR_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
           npm install -g --no-fund --no-audit --ignore-scripts \
-            '@gamecrate/cli@3.6.0' '@gamecrate/rimworld@2.5.0'
+            '@gamecrate/cli@3.7.0' '@gamecrate/rimworld@2.5.0'
 
           mkdir -p "$PWD/quickstart-out"
           chmod 777 "$PWD/quickstart-out"
