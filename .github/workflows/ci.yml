@@ -175,7 +175,7 @@ jobs:
           node-version: '22'
 
       - name: Cache the workshop downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.local/share/gamecrate/steam/steamapps/workshop/content/294100
