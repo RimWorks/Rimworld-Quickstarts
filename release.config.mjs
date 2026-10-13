@@ -9,7 +9,13 @@ const WORKSHOP_ID = process.env.WORKSHOP_ID || '3793646067';
 export default releaseConfig({
     solution: 'Quickstarts.slnx',
     versions: declaredVersions(readFileSync('loadFolders.xml', 'utf8')),
-    mods: [{ name: 'Quickstarts', workshopId: WORKSHOP_ID }],
+    mods: [
+        {
+            name: 'Quickstarts',
+            workshopId: WORKSHOP_ID,
+            previewfile: new URL('./About/Preview.png', import.meta.url).pathname,
+        },
+    ],
     pack: 'Source/Quickstarts.Ref/Quickstarts.Ref.csproj',
     nupkgGlob: 'artifacts/RimWorks.Quickstarts.Ref.${nextRelease.version}.nupkg',
     assets: [
