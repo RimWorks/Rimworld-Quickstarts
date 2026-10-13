@@ -13,7 +13,6 @@ export default releaseConfig({
         {
             name: 'Quickstarts',
             workshopId: WORKSHOP_ID,
-            previewfile: new URL('./About/Preview.png', import.meta.url).pathname,
         },
     ],
     pack: 'Source/Quickstarts.Ref/Quickstarts.Ref.csproj',
