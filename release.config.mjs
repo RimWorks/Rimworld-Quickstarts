@@ -12,6 +12,7 @@ export default releaseConfig({
     mods: [
         {
             name: 'Quickstarts',
+            title: 'Quickstarts: RimWorld dev quicktest scenarios',
             workshopId: WORKSHOP_ID,
         },
     ],
