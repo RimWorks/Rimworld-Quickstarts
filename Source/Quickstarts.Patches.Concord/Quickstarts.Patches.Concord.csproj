@@ -11,7 +11,7 @@
                Exclude="$(GamecrateRefs)/System.*.dll;$(GamecrateRefs)/System.dll;$(GamecrateRefs)/Microsoft.*.dll;$(GamecrateRefs)/mscorlib.dll;$(GamecrateRefs)/netstandard.dll;$(GamecrateRefs)/WindowsBase.dll">
       <Private>False</Private>
     </Reference>
-    <PackageReference Include="Concord.Ref" Version="0.25.*" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="Concord.Ref" Version="0.28.*" ExcludeAssets="runtime" PrivateAssets="all" />
     <PackageReference Include="RimWorks.RimLogging" Version="3.*" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
