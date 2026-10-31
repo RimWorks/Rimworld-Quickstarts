@@ -154,10 +154,10 @@ in, which `timeout` alone cannot tell you.
 
 | Code | Meaning |
 | --- | --- |
-| 0 | every assertion passed and the log was clean |
-| 1 | an assertion failed, or the error budget blew |
-| 2 | the in-game watchdog fired. a report exists, with `stage` |
-| 124 | `timeout` fired. probably no report |
+| 0 | every assertion passed and the log was clean. |
+| 1 | an assertion failed, or the error budget blew. |
+| 2 | the in-game watchdog fired. a report exists, with `stage`. |
+| 124 | `timeout` fired. probably no report. |
 | 137 | `timeout` needed SIGKILL |
 
 Stages, in order: `configuring`, `generating-world`, `generating-map`, `ticking`, `verifying`.
@@ -214,8 +214,8 @@ so the other one never has to resolve.
 
 | Tool | What it does |
 | --- | --- |
-| [Pickle](https://github.com/RimWorks/Rimworld-Pickle) | Run Gherkin tests against a live RimWorld session, in the game |
-| [RimLogging](https://github.com/RimWorks/rimworld-logging-framework) | Structured logging, an in-game log viewer, and one-click bug report sharing |
+| [Pickle](https://github.com/RimWorks/Rimworld-Pickle) | Run Gherkin tests in a live session. |
+| [RimLogging](https://github.com/RimWorks/rimworld-logging-framework) | Structured logging and an in-game log viewer. |
 
 ## License
 
