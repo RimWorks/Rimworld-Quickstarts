@@ -31,6 +31,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  workflow-versions:
+    name: workflow versions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: node scripts/verify-workflow-versions.mjs
+
   prose:
     name: prose
     uses: RimWorks/mod-ci/.github/workflows/prose.yml@v5
@@ -245,7 +256,8 @@ jobs:
   gate:
     name: ci gate
     if: always()
-    needs: [prose, links, workshop-description, images, build, package-deps, quickstart, sonar]
+    needs: [workflow-versions, prose, links, workshop-description, images, build,
+            package-deps, quickstart, sonar]
     runs-on: ubuntu-latest
     steps:
       - name: Fail unless every job this gate covers passed or was skipped

@@ -92,7 +92,7 @@ jobs:
       - uses: RimWorks/mod-ci/.github/actions/steam-republish@v5
         with:
           solution: Quickstarts.slnx
-          workshop-id: ${{ vars.WORKSHOP_ID }}
+          workshop-id: '3793646067'
           steam-username: ${{ secrets.STEAM_USERNAME }}
           steam-config-vdf-b64: ${{ secrets.STEAM_CONFIG_VDF_B64 }}
           verified-rimworld: ${{ env.RIMWORLD_REF }}
