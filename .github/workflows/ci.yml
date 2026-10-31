@@ -7,6 +7,8 @@ on:
         required: false
       STEAM_CONFIG_VDF_B64:
         required: false
+      DEPOTDOWNLOADER_ACCOUNT_B64:
+        required: false
       SONAR_TOKEN:
         required: false
     outputs:
@@ -147,6 +149,7 @@ jobs:
     secrets:
       STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
       STEAM_CONFIG_VDF_B64: ${{ secrets.STEAM_CONFIG_VDF_B64 }}
+      DEPOTDOWNLOADER_ACCOUNT_B64: ${{ secrets.DEPOTDOWNLOADER_ACCOUNT_B64 }}
 
   quickstart:
     name: quickstart (${{ matrix.version }}, ${{ matrix.backend }})
