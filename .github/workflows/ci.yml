@@ -35,7 +35,7 @@ concurrency:
 jobs:
   workflow-versions:
     name: workflow versions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     steps:
@@ -60,7 +60,7 @@ jobs:
 
   workshop-description:
     name: workshop description
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     steps:
@@ -154,7 +154,7 @@ jobs:
   quickstart:
     name: quickstart (${{ matrix.version }}, ${{ matrix.backend }})
     needs: images
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     permissions:
       contents: read
@@ -261,7 +261,7 @@ jobs:
     if: always()
     needs: [workflow-versions, prose, links, workshop-description, images, build,
             package-deps, quickstart, sonar]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Fail unless every job this gate covers passed or was skipped
         env:
